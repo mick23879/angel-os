@@ -1,6 +1,6 @@
 {
- "version": "62",
+ "version": "62.1",
  "date": "6 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Version locale et mises à jour", "Demande de mise à jour particulière", "Espace admin : toujours un administrateur"]
+ "notes": ["Plein écran au premier clic", "Petit bouton plein écran en haut à droite", "F11, clic droit du bureau et Élyane : « mets le plein écran »", "Réglages dans Paramètres › Fenêtres"]
 }
