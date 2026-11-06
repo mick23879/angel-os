@@ -1,6 +1,6 @@
 {
- "version": "62.2",
+ "version": "62.3",
  "date": "6 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Les mises à jour remplacent le fichier toutes seules (Chrome ou Edge)", "Explications plus claires si le navigateur ne peut pas"]
+ "notes": ["Lanceur Angel OS : mises à jour sans aucune fenêtre", "Redémarrage automatique après la mise à jour", "Mises à jour visibles tout de suite (plus d attente de GitHub)"]
 }
