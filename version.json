@@ -1,6 +1,6 @@
 {
- "version": "62.1",
+ "version": "62.2",
  "date": "6 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Plein écran au premier clic", "Petit bouton plein écran en haut à droite", "F11, clic droit du bureau et Élyane : « mets le plein écran »", "Réglages dans Paramètres › Fenêtres"]
+ "notes": ["Les mises à jour remplacent le fichier toutes seules (Chrome ou Edge)", "Explications plus claires si le navigateur ne peut pas"]
 }
