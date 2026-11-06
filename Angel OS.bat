@@ -22,8 +22,12 @@ $adresse = "$origine/"
 $enc = New-Object System.Text.UTF8Encoding $false
 $l = New-Object System.Net.HttpListener
 $l.Prefixes.Add($adresse)
-try { $l.Start() } catch { Start-Process $adresse; exit }
-Start-Process $adresse
+function Ouvrir {
+  try { Start-Process 'msedge' -ArgumentList @("--app=$adresse", '--start-fullscreen') -ErrorAction Stop }
+  catch { Start-Process $adresse }
+}
+try { $l.Start() } catch { Ouvrir; exit }
+Ouvrir
 $dernier = Get-Date
 function Repondre($rep, $code, $type, [byte[]]$octets) {
   $rep.StatusCode = $code
