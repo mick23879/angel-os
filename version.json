@@ -1,6 +1,6 @@
 {
- "version": "62.3",
+ "version": "62.4",
  "date": "6 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Lanceur Angel OS : mises à jour sans aucune fenêtre", "Redémarrage automatique après la mise à jour", "Mises à jour visibles tout de suite (plus d attente de GitHub)"]
+ "notes": ["Ton logo dans la fenêtre et la barre des tâches de Windows", "Raccourci Angel OS avec icône sur le bureau et dans le menu Démarrer (lanceur)"]
 }

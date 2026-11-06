@@ -22,6 +22,29 @@ $adresse = "$origine/"
 $enc = New-Object System.Text.UTF8Encoding $false
 $l = New-Object System.Net.HttpListener
 $l.Prefixes.Add($adresse)
+# Raccourcis avec l'icone Angel OS (bureau et menu Demarrer de Windows)
+function Raccourcis {
+  try {
+    $ico = Join-Path $dir 'angel-os.ico'
+    $bat = $env:ANGEL_BAT
+    $sh = New-Object -ComObject WScript.Shell
+    $lieux = @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'))
+    foreach ($lieu in $lieux) {
+      try {
+      if (-not $lieu) { continue }
+      $lnk = Join-Path $lieu 'Angel OS.lnk'
+      $r = $sh.CreateShortcut($lnk)
+      $r.TargetPath = $bat
+      $r.WorkingDirectory = $dir
+      $r.WindowStyle = 7
+      $r.Description = 'Angel OS'
+      if (Test-Path -LiteralPath $ico) { $r.IconLocation = "$ico,0" }
+      $r.Save()
+      } catch {}
+    }
+  } catch {}
+}
+Raccourcis
 function Ouvrir {
   try { Start-Process 'msedge' -ArgumentList @("--app=$adresse", '--start-fullscreen') -ErrorAction Stop }
   catch { Start-Process $adresse }
