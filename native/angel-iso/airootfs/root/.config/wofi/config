@@ -1,0 +1,8 @@
+width=460
+height=560
+location=center
+show=drun
+prompt=Rechercher une application
+allow_images=true
+insensitive=true
+no_actions=true

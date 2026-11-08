@@ -1,0 +1,9 @@
+window { background: rgba(12,16,34,0.94); border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); }
+#input { margin: 14px; padding: 11px 15px; border-radius: 12px; border: none; background: rgba(255,255,255,0.08); color: #e7ecf7; }
+#input:focus { outline: none; box-shadow: inset 0 0 0 2px #7c3aff; }
+#inner-box { margin: 6px 10px 12px; }
+#scroll { margin: 0; }
+#entry { padding: 10px 14px; border-radius: 12px; margin: 2px 6px; }
+#entry:selected { background: linear-gradient(90deg, #7c3aff, #2f8cff); }
+#text { color: #e7ecf7; }
+#img { margin-right: 10px; }

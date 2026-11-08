@@ -52,6 +52,7 @@ install -Dm755 /usr/local/bin/angel-autopower /mnt/usr/local/bin/angel-autopower
 mkdir -p /mnt/etc/skel/.config/hypr /mnt/etc/skel/.config/waybar
 cp /root/.config/hypr/hyprland.conf /mnt/etc/skel/.config/hypr/
 cp /root/.config/waybar/*           /mnt/etc/skel/.config/waybar/
+for d in wofi gtk-3.0 gtk-4.0 foot; do mkdir -p /mnt/etc/skel/.config/$d; cp -r /root/.config/$d/* /mnt/etc/skel/.config/$d/ 2>/dev/null || true; done
 
 # script execute DANS le nouveau systeme ($U,$PW,$HN,$P2 remplaces ici ; \$ reste pour l'interieur)
 cat > /mnt/root/angel-chroot.sh <<CHROOT
