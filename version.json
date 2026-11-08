@@ -1,6 +1,6 @@
 {
- "version": "62.5",
+ "version": "62.6",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Lecteur vidéo complet (VLX), présent par défaut", "Sous-titres .srt et .vtt", "Mini-fenêtre, capture d image, boucle", "Raccourcis clavier (Espace, fleches, J L, M, F, C)", "Reprend la video la ou tu t etais arrete"]
+ "notes": ["Le lecteur accepte plus de formats : MKV, AVI, MOV, WMV, FLV...", "Message clair quand un format ne se lit pas dans le navigateur", "Le vrai Angel OS (ISO) lira tout avec mpv/VLC"]
 }
