@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Installer Angel OS
+Comment=Installer Angel OS sur le disque dur
+Exec=foot -- sudo angel-install
+Icon=system-software-install
+Type=Application
+Categories=System;

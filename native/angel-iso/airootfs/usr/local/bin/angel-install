@@ -1,0 +1,89 @@
+#!/bin/bash
+# ================= Installateur Angel OS (sur disque) =================
+set -e
+if [ "$(id -u)" != 0 ]; then echo "Lance avec : sudo angel-install"; exit 1; fi
+echo
+echo "   ============================================"
+echo "        Installation d'Angel OS sur le disque"
+echo "   ============================================"
+echo
+echo " Disques disponibles :"
+lsblk -dno NAME,SIZE,MODEL | grep -vE '^(loop|sr)' || true
+echo
+read -rp " Disque cible (ex: sda ou nvme0n1) : " D
+DISK="/dev/$D"
+[ -b "$DISK" ] || { echo "Disque introuvable : $DISK"; exit 1; }
+echo
+echo " ATTENTION : tout le contenu de $DISK sera EFFACE."
+read -rp " Pour confirmer, tape exactement OUI : " C
+[ "$C" = "OUI" ] || { echo "Installation annulee."; exit 0; }
+read -rp " Nom d'utilisateur : " U
+read -rsp " Mot de passe : " PW; echo
+read -rp " Nom de l'ordinateur [angel] : " HN; HN=${HN:-angel}
+
+# noms de partitions (nvme/mmc ont un 'p')
+if [[ "$D" == nvme* || "$D" == mmcblk* ]]; then P1="${DISK}p1"; P2="${DISK}p2"; else P1="${DISK}1"; P2="${DISK}2"; fi
+
+echo " -> Partitionnement..."
+sgdisk -Z "$DISK" >/dev/null
+sgdisk -n1:0:+512M -t1:ef00 -c1:EFI "$DISK" >/dev/null
+sgdisk -n2:0:0     -t2:8300 -c2:ROOT "$DISK" >/dev/null
+partprobe "$DISK" 2>/dev/null || true; sleep 2
+mkfs.fat -F32 "$P1" >/dev/null
+mkfs.ext4 -F "$P2" >/dev/null
+mount "$P2" /mnt
+mkdir -p /mnt/boot
+mount "$P1" /mnt/boot
+
+echo " -> Installation du systeme (peut prendre 10-20 min)..."
+pacstrap -K /mnt base linux linux-firmware intel-ucode networkmanager sudo \
+  hyprland waybar wofi foot swaybg thunar thunar-volman gvfs firefox mpv imv \
+  pavucontrol brightnessctl network-manager-applet xdg-desktop-portal-hyprland \
+  wl-clipboard grim slurp power-profiles-daemon mesa vulkan-intel intel-media-driver \
+  libva-utils pipewire pipewire-pulse wireplumber polkit polkit-gnome qt6-wayland \
+  playerctl ttf-dejavu ttf-font-awesome noto-fonts noto-fonts-emoji papirus-icon-theme
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+echo " -> Copie des reglages Angel OS..."
+install -Dm644 /usr/share/backgrounds/angel/angel.png /mnt/usr/share/backgrounds/angel/angel.png
+install -Dm755 /usr/local/bin/angel-power     /mnt/usr/local/bin/angel-power
+install -Dm755 /usr/local/bin/angel-autopower /mnt/usr/local/bin/angel-autopower
+mkdir -p /mnt/etc/skel/.config/hypr /mnt/etc/skel/.config/waybar
+cp /root/.config/hypr/hyprland.conf /mnt/etc/skel/.config/hypr/
+cp /root/.config/waybar/*           /mnt/etc/skel/.config/waybar/
+
+# script execute DANS le nouveau systeme ($U,$PW,$HN,$P2 remplaces ici ; \$ reste pour l'interieur)
+cat > /mnt/root/angel-chroot.sh <<CHROOT
+#!/bin/bash
+set -e
+ln -sf /usr/share/zoneinfo/Africa/Douala /etc/localtime
+hwclock --systohc || true
+echo "fr_FR.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=fr_FR.UTF-8" > /etc/locale.conf
+echo "KEYMAP=fr" > /etc/vconsole.conf
+echo "$HN" > /etc/hostname
+printf "127.0.0.1 localhost\n::1 localhost\n127.0.1.1 $HN\n" > /etc/hosts
+systemctl enable NetworkManager
+bootctl install
+printf "default angel\ntimeout 2\n" > /boot/loader/loader.conf
+RUUID=\$(blkid -s PARTUUID -o value $P2)
+printf "title Angel OS\nlinux /vmlinuz-linux\ninitrd /intel-ucode.img\ninitrd /initramfs-linux.img\noptions root=PARTUUID=\$RUUID rw quiet\n" > /boot/loader/entries/angel.conf
+useradd -m -G wheel,video,audio,network,storage -s /bin/bash "$U"
+echo "$U:$PW" | chpasswd
+echo "root:$PW" | chpasswd
+echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/10-wheel
+printf 'if [ -z "\$WAYLAND_DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then exec Hyprland; fi\n' > /home/$U/.bash_profile
+chown $U:$U /home/$U/.bash_profile
+CHROOT
+chmod +x /mnt/root/angel-chroot.sh
+arch-chroot /mnt /root/angel-chroot.sh
+rm -f /mnt/root/angel-chroot.sh
+umount -R /mnt
+echo
+echo "   ============================================"
+echo "     Angel OS est installe. Redemarre et"
+echo "     retire la cle USB."
+echo "   ============================================"

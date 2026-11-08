@@ -34,3 +34,7 @@ polkit-gnome
 sudo
 imv
 playerctl
+gptfdisk
+dosfstools
+parted
+arch-install-scripts
