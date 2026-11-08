@@ -1,6 +1,6 @@
 {
- "version": "62.10",
+ "version": "62.11",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Vrai lecteur d images : zoom, rotation, suivant/precedent", "Pellicule de miniatures, diaporama et plein ecran", "Mettre une image en fond d ecran", "Le choix des fonds reste disponible"]
+ "notes": ["Edge Next ouvre de vrais sites quand il y a Internet", "Bouton Ouvrir dans un onglet si le site refuse de s afficher", "Recherche vers un vrai moteur de recherche", "Message clair quand il n y a pas d Internet"]
 }
