@@ -1,0 +1,18 @@
+#!/bin/bash
+# Installe Elyane, l'assistante hors ligne d'Angel OS (a lancer apres l'installation, avec Internet)
+set -e
+echo "   ========================================"
+echo "     Installation d'Elyane (hors ligne)"
+echo "   ========================================"
+echo
+if ! command -v ollama >/dev/null; then
+  echo " -> Installation du moteur local (ollama)..."
+  sudo pacman -S --needed --noconfirm ollama
+fi
+echo " -> Demarrage du moteur..."
+sudo systemctl enable --now ollama
+sleep 2
+echo " -> Telechargement du cerveau d'Elyane (Qwen2.5 3B, ~2 Go). Patiente..."
+ollama pull qwen2.5:3b
+echo
+echo "   Elyane est prete ! Tape :  elyane   pour lui parler."

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Élyane
+Comment=Parler à Élyane, ton assistante hors ligne
+Exec=foot -- elyane
+Icon=user-available
+Type=Application
+Categories=Utility;
