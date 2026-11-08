@@ -1,6 +1,6 @@
 {
- "version": "62.9",
+ "version": "62.10",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Lecteur video facon YouTube : barre rouge, commandes qui se cachent, menu reglages", "Lecteur de musique refait : vraie lecture, visualiseur anime, file d attente", "Aleatoire et repetition (tout / une seule)", "Titre et artiste lus depuis le nom du fichier"]
+ "notes": ["Vrai lecteur d images : zoom, rotation, suivant/precedent", "Pellicule de miniatures, diaporama et plein ecran", "Mettre une image en fond d ecran", "Le choix des fonds reste disponible"]
 }
