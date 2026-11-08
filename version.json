@@ -1,6 +1,6 @@
 {
- "version": "62.8",
+ "version": "62.9",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Son de demarrage quand Angel OS s ouvre", "4 sons au choix : Angel, Doux, Cristal, Ascension", "Reglage dans Parametres > Comptes (au demarrage), avec bouton Essayer"]
+ "notes": ["Lecteur video facon YouTube : barre rouge, commandes qui se cachent, menu reglages", "Lecteur de musique refait : vraie lecture, visualiseur anime, file d attente", "Aleatoire et repetition (tout / une seule)", "Titre et artiste lus depuis le nom du fichier"]
 }
