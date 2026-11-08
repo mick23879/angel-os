@@ -1,6 +1,6 @@
 {
- "version": "62.7",
+ "version": "62.8",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Reprise de session : avant l arret ou le redemarrage, Angel OS retient tes applications ouvertes", "Il les rouvre au demarrage suivant", "Reglage dans Parametres > Systeme > Recuperation"]
+ "notes": ["Son de demarrage quand Angel OS s ouvre", "4 sons au choix : Angel, Doux, Cristal, Ascension", "Reglage dans Parametres > Comptes (au demarrage), avec bouton Essayer"]
 }
