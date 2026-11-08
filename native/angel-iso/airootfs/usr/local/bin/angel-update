@@ -1,0 +1,34 @@
+#!/bin/bash
+# ============ Mise a jour d'Angel OS (comme le prototype) ============
+set -e
+echo "   ======================================"
+echo "        Mise a jour d'Angel OS"
+echo "   ======================================"
+echo
+if ! ping -c1 -W3 github.com >/dev/null 2>&1; then
+  echo " Pas de connexion Internet. Branche le Wi-Fi et reessaie."
+  exit 1
+fi
+echo " [1/3] Mise a jour du systeme (paquets)..."
+sudo pacman -Syu --noconfirm
+echo " [2/3] Recuperation des ameliorations Angel OS..."
+TMP=$(mktemp -d)
+git clone --depth 1 https://github.com/mick23879/angel-os "$TMP/ao" >/dev/null 2>&1
+OV="$TMP/ao/native/angel-iso/airootfs"
+echo " [3/3] Application..."
+# scripts Angel + Elyane
+sudo cp "$OV/usr/local/bin/"* /usr/local/bin/ 2>/dev/null || true
+sudo chmod +x /usr/local/bin/angel-* /usr/local/bin/elyane* 2>/dev/null || true
+# raccourcis du menu
+sudo cp "$OV/usr/share/applications/"*.desktop /usr/share/applications/ 2>/dev/null || true
+# fond d'ecran
+sudo mkdir -p /usr/share/backgrounds/angel
+sudo cp "$OV/usr/share/backgrounds/angel/"* /usr/share/backgrounds/angel/ 2>/dev/null || true
+# reglages du bureau (pour l'utilisateur courant)
+for d in hypr waybar wofi gtk-3.0 gtk-4.0 foot; do
+  if [ -d "$OV/root/.config/$d" ]; then mkdir -p "$HOME/.config/$d"; cp -r "$OV/root/.config/$d/." "$HOME/.config/$d/"; fi
+done
+rm -rf "$TMP"
+echo
+echo "   Angel OS est a jour ! Deconnecte-toi et reconnecte-toi"
+echo "   (ou SUPER+Maj+E puis reconnexion) pour voir les changements."

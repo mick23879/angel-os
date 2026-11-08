@@ -41,14 +41,17 @@ pacstrap -K /mnt base linux linux-firmware intel-ucode networkmanager sudo \
   pavucontrol brightnessctl network-manager-applet xdg-desktop-portal-hyprland \
   wl-clipboard grim slurp power-profiles-daemon mesa vulkan-intel intel-media-driver \
   libva-utils pipewire pipewire-pulse wireplumber polkit polkit-gnome qt6-wayland \
-  playerctl ttf-dejavu ttf-font-awesome noto-fonts noto-fonts-emoji papirus-icon-theme
+  playerctl git ttf-dejavu ttf-font-awesome noto-fonts noto-fonts-emoji papirus-icon-theme adwaita-icon-theme
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo " -> Copie des reglages Angel OS..."
 install -Dm644 /usr/share/backgrounds/angel/angel.png /mnt/usr/share/backgrounds/angel/angel.png
-install -Dm755 /usr/local/bin/angel-power     /mnt/usr/local/bin/angel-power
-install -Dm755 /usr/local/bin/angel-autopower /mnt/usr/local/bin/angel-autopower
+mkdir -p /mnt/usr/local/bin
+cp /usr/local/bin/angel-* /usr/local/bin/elyane* /mnt/usr/local/bin/ 2>/dev/null || true
+chmod +x /mnt/usr/local/bin/angel-* /mnt/usr/local/bin/elyane* 2>/dev/null || true
+mkdir -p /mnt/usr/share/applications
+cp /usr/share/applications/angel-*.desktop /usr/share/applications/elyane.desktop /mnt/usr/share/applications/ 2>/dev/null || true
 mkdir -p /mnt/etc/skel/.config/hypr /mnt/etc/skel/.config/waybar
 cp /root/.config/hypr/hyprland.conf /mnt/etc/skel/.config/hypr/
 cp /root/.config/waybar/*           /mnt/etc/skel/.config/waybar/

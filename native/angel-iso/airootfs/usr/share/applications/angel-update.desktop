@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Mettre à jour Angel OS
+Comment=Recevoir les dernières améliorations (sans réinstaller)
+Exec=foot -- angel-update
+Icon=system-software-update
+Type=Application
+Categories=System;
