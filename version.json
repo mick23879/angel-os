@@ -1,6 +1,6 @@
 {
- "version": "62.4",
- "date": "6 nov. 2026",
+ "version": "62.5",
+ "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Ton logo dans la fenêtre et la barre des tâches de Windows", "Raccourci Angel OS avec icône sur le bureau et dans le menu Démarrer (lanceur)"]
+ "notes": ["Lecteur vidéo complet (VLX), présent par défaut", "Sous-titres .srt et .vtt", "Mini-fenêtre, capture d image, boucle", "Raccourcis clavier (Espace, fleches, J L, M, F, C)", "Reprend la video la ou tu t etais arrete"]
 }
