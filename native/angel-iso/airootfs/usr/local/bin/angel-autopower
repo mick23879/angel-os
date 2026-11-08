@@ -1,0 +1,8 @@
+#!/bin/bash
+# au demarrage : secteur => equilibre, batterie => economie
+sleep 2
+if cat /sys/class/power_supply/A{C,DP}*/online 2>/dev/null | grep -q 1; then
+  angel-power bal
+else
+  angel-power eco
+fi

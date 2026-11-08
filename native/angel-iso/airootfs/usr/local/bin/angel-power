@@ -1,0 +1,21 @@
+#!/bin/bash
+# Angel OS : regle le mode d'energie + adapte les effets (fluidite / batterie / CPU)
+mode="$1"
+notify() { command -v notify-send >/dev/null && notify-send "Angel OS" "Mode : $1" 2>/dev/null; }
+case "$mode" in
+  perf|performances)
+    powerprofilesctl set performance 2>/dev/null
+    hyprctl keyword decoration:blur:enabled true >/dev/null
+    hyprctl keyword animations:enabled 1 >/dev/null
+    notify "Performances" ;;
+  eco|economie)
+    powerprofilesctl set power-saver 2>/dev/null
+    hyprctl keyword decoration:blur:enabled false >/dev/null
+    hyprctl keyword animations:enabled 0 >/dev/null
+    notify "Economie (batterie max)" ;;
+  *)
+    powerprofilesctl set balanced 2>/dev/null
+    hyprctl keyword decoration:blur:enabled true >/dev/null
+    hyprctl keyword animations:enabled 1 >/dev/null
+    notify "Equilibre" ;;
+esac

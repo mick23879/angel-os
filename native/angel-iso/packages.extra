@@ -16,7 +16,6 @@ wl-clipboard
 grim
 slurp
 power-profiles-daemon
-tlp
 mesa
 vulkan-intel
 intel-media-driver
@@ -33,3 +32,5 @@ noto-fonts-emoji
 papirus-icon-theme
 polkit-gnome
 sudo
+imv
+playerctl
