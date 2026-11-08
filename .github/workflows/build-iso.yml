@@ -1,0 +1,52 @@
+name: Build Angel OS ISO
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'native/angel-iso/**'
+      - '.github/workflows/build-iso.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install archiso
+        run: pacman -Syu --noconfirm archiso git
+
+      - name: Prepare Angel OS profile
+        run: |
+          set -e
+          cp -r /usr/share/archiso/configs/releng profile
+          # ajouter nos paquets
+          cat native/angel-iso/packages.extra >> profile/packages.x86_64
+          # superposer nos fichiers (fond d'ecran, config Hyprland, motd...)
+          cp -a native/angel-iso/airootfs/. profile/airootfs/
+          # marque Angel OS
+          sed -i 's/^iso_name=.*/iso_name="angel-os"/' profile/profiledef.sh
+          sed -i 's/^iso_label=.*/iso_label="ANGEL_OS_$(date +%Y%m)"/' profile/profiledef.sh || true
+          sed -i 's/^iso_publisher=.*/iso_publisher="Angel OS <mick23879>"/' profile/profiledef.sh
+          sed -i 's/^iso_application=.*/iso_application="Angel OS Live"/' profile/profiledef.sh
+          # permissions du profil root
+          if ! grep -q '/root/.bash_profile' profile/profiledef.sh; then
+            sed -i 's#\["/root"\]="0:0:750"#["/root"]="0:0:750"\n  ["/root/.bash_profile"]="0:0:644"#' profile/profiledef.sh || true
+          fi
+          echo "----- packages.x86_64 (fin) -----"; tail -n 25 profile/packages.x86_64
+
+      - name: Build ISO (mkarchiso)
+        run: |
+          mkdir -p out
+          mkarchiso -v -w /tmp/awork -o out profile
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: angel-os-iso
+          path: out/*.iso
+          retention-days: 14
