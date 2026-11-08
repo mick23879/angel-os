@@ -1,0 +1,31 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "spacing": 6,
+  "modules-left": ["custom/angel", "hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["pulseaudio", "network", "battery", "tray"],
+  "custom/angel": { "format": "  Angel OS", "tooltip": false },
+  "hyprland/workspaces": { "on-click": "activate", "format": "{id}" },
+  "clock": { "format": "{:%H:%M  ·  %a %d %b}", "tooltip-format": "{:%A %d %B %Y}" },
+  "battery": {
+    "format": "{icon}  {capacity}%",
+    "format-charging": "  {capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "states": { "warning": 20, "critical": 10 }
+  },
+  "network": {
+    "format-wifi": "  {essid}",
+    "format-ethernet": "  filaire",
+    "format-disconnected": "  hors ligne",
+    "tooltip-format": "{ifname}: {ipaddr}"
+  },
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "  muet",
+    "format-icons": { "default": ["", "", ""] },
+    "on-click": "pavucontrol"
+  },
+  "tray": { "spacing": 8 }
+}
