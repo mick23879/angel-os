@@ -18,12 +18,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install archiso
-        run: pacman -Syu --noconfirm archiso git
+        run: |
+          # activer multilib (necessaire pour Wine / paquets 32 bits)
+          sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
+          grep -q '^\[multilib\]' /etc/pacman.conf || printf '\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> /etc/pacman.conf
+          pacman -Syu --noconfirm archiso git
 
       - name: Prepare Angel OS profile
         run: |
           set -e
           cp -r /usr/share/archiso/configs/releng profile
+          # activer multilib dans le profil (pour installer Wine dans l'ISO)
+          sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' profile/pacman.conf
+          grep -q '^\[multilib\]' profile/pacman.conf || printf '\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> profile/pacman.conf
           # ajouter nos paquets
           cat native/angel-iso/packages.extra >> profile/packages.x86_64
           # superposer nos fichiers (fond d'ecran, config Hyprland, motd...)

@@ -10,7 +10,10 @@ if ! ping -c1 -W3 github.com >/dev/null 2>&1; then
   exit 1
 fi
 echo " [1/3] Mise a jour du systeme (paquets)..."
+sudo sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 sudo pacman -Syu --noconfirm
+# s'assurer que les 3 facons d'installer des logiciels sont presentes
+sudo pacman -S --needed --noconfirm flatpak gnome-software fuse2 wine winetricks lib32-mesa lib32-vulkan-intel || true
 echo " [2/3] Recuperation des ameliorations Angel OS..."
 TMP=$(mktemp -d)
 git clone --depth 1 https://github.com/mick23879/angel-os "$TMP/ao" >/dev/null 2>&1
@@ -24,10 +27,18 @@ sudo cp "$OV/usr/share/applications/"*.desktop /usr/share/applications/ 2>/dev/n
 # fond d'ecran
 sudo mkdir -p /usr/share/backgrounds/angel
 sudo cp "$OV/usr/share/backgrounds/angel/"* /usr/share/backgrounds/angel/ 2>/dev/null || true
+# service Flathub (magasin d'applications)
+if [ -f "$OV/etc/systemd/system/angel-flathub.service" ]; then
+  sudo cp "$OV/etc/systemd/system/angel-flathub.service" /etc/systemd/system/ 2>/dev/null || true
+  sudo systemctl enable angel-flathub.service 2>/dev/null || true
+  sudo systemctl start angel-flathub.service 2>/dev/null || true
+fi
 # reglages du bureau (pour l'utilisateur courant)
 for d in hypr waybar wofi gtk-3.0 gtk-4.0 foot; do
   if [ -d "$OV/root/.config/$d" ]; then mkdir -p "$HOME/.config/$d"; cp -r "$OV/root/.config/$d/." "$HOME/.config/$d/"; fi
 done
+# associations de fichiers (AppImage, .exe)
+cp "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null || true
 rm -rf "$TMP"
 echo
 echo "   Angel OS est a jour ! Deconnecte-toi et reconnecte-toi"

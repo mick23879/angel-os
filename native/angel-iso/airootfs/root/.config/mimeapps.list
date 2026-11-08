@@ -1,0 +1,4 @@
+[Default Applications]
+application/vnd.appimage=angel-appimage.desktop
+application/x-iso9660-appimage=angel-appimage.desktop
+application/x-ms-dos-executable=angel-exe.desktop

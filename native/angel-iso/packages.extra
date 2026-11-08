@@ -40,3 +40,11 @@ parted
 arch-install-scripts
 adwaita-icon-theme
 git
+# --- Installer d'autres logiciels ---
+flatpak
+gnome-software
+fuse2
+wine
+winetricks
+lib32-mesa
+lib32-vulkan-intel

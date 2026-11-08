@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Logithèque (installer des logiciels)
+Comment=Chercher et installer d'autres applications
+Exec=gnome-software
+Icon=system-software-install
+Type=Application
+Categories=System;

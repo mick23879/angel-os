@@ -1,0 +1,13 @@
+#!/bin/bash
+# ============================================================
+#  Angel OS - Lancer un fichier AppImage
+#  (un logiciel telecharge en 1 seul fichier, comme un .exe)
+# ============================================================
+f="$1"
+if [ -z "$f" ] || [ ! -f "$f" ]; then
+  echo "Donne le fichier .AppImage a lancer."
+  exit 1
+fi
+# le rendre executable puis le lancer
+chmod +x "$f" 2>/dev/null || true
+exec "$f" "${@:2}"

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Lancer un AppImage
+Comment=Ouvrir un logiciel téléchargé (.AppImage)
+Exec=angel-appimage %f
+Icon=application-x-executable
+Type=Application
+Categories=Utility;
+NoDisplay=true
+MimeType=application/vnd.appimage;application/x-iso9660-appimage;

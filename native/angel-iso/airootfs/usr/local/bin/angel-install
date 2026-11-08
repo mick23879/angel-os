@@ -35,13 +35,18 @@ mount "$P2" /mnt
 mkdir -p /mnt/boot
 mount "$P1" /mnt/boot
 
+# activer multilib (necessaire pour Wine / logiciels 32 bits)
+sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
+pacman -Sy >/dev/null 2>&1 || true
+
 echo " -> Installation du systeme (peut prendre 10-20 min)..."
 pacstrap -K /mnt base linux linux-firmware intel-ucode networkmanager sudo \
   hyprland waybar wofi foot swaybg thunar thunar-volman gvfs firefox mpv imv \
   pavucontrol brightnessctl network-manager-applet xdg-desktop-portal-hyprland \
   wl-clipboard grim slurp power-profiles-daemon mesa vulkan-intel intel-media-driver \
   libva-utils pipewire pipewire-pulse wireplumber polkit polkit-gnome qt6-wayland \
-  playerctl git ttf-dejavu ttf-font-awesome noto-fonts noto-fonts-emoji papirus-icon-theme adwaita-icon-theme
+  playerctl git ttf-dejavu ttf-font-awesome noto-fonts noto-fonts-emoji papirus-icon-theme adwaita-icon-theme \
+  flatpak gnome-software fuse2 wine winetricks lib32-mesa lib32-vulkan-intel
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -56,6 +61,9 @@ mkdir -p /mnt/etc/skel/.config/hypr /mnt/etc/skel/.config/waybar
 cp /root/.config/hypr/hyprland.conf /mnt/etc/skel/.config/hypr/
 cp /root/.config/waybar/*           /mnt/etc/skel/.config/waybar/
 for d in wofi gtk-3.0 gtk-4.0 foot; do mkdir -p /mnt/etc/skel/.config/$d; cp -r /root/.config/$d/* /mnt/etc/skel/.config/$d/ 2>/dev/null || true; done
+cp /root/.config/mimeapps.list /mnt/etc/skel/.config/ 2>/dev/null || true
+mkdir -p /mnt/etc/systemd/system
+cp /etc/systemd/system/angel-flathub.service /mnt/etc/systemd/system/ 2>/dev/null || true
 
 # script execute DANS le nouveau systeme ($U,$PW,$HN,$P2 remplaces ici ; \$ reste pour l'interieur)
 cat > /mnt/root/angel-chroot.sh <<CHROOT
@@ -71,6 +79,8 @@ echo "KEYMAP=fr" > /etc/vconsole.conf
 echo "$HN" > /etc/hostname
 printf "127.0.0.1 localhost\n::1 localhost\n127.0.1.1 $HN\n" > /etc/hosts
 systemctl enable NetworkManager
+sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
+systemctl enable angel-flathub.service || true
 bootctl install
 printf "default angel\ntimeout 2\n" > /boot/loader/loader.conf
 RUUID=\$(blkid -s PARTUUID -o value $P2)

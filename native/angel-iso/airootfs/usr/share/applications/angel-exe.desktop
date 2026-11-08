@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Lancer un programme Windows
+Comment=Ouvrir un programme Windows (.exe) avec Wine
+Exec=angel-exe %f
+Icon=application-x-ms-dos-executable
+Type=Application
+Categories=Utility;
+NoDisplay=true
+MimeType=application/x-ms-dos-executable;

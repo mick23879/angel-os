@@ -1,0 +1,11 @@
+#!/bin/bash
+# ============================================================
+#  Angel OS - Lancer un programme Windows (.exe) avec Wine
+#  Remarque : marche pour beaucoup de logiciels Windows,
+#  mais pas pour tous.
+# ============================================================
+if [ -z "$1" ]; then
+  echo "Donne le programme Windows (.exe) a lancer."
+  exit 1
+fi
+exec wine "$@"
