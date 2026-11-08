@@ -1,6 +1,6 @@
 {
- "version": "62.6",
+ "version": "62.7",
  "date": "8 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Le lecteur accepte plus de formats : MKV, AVI, MOV, WMV, FLV...", "Message clair quand un format ne se lit pas dans le navigateur", "Le vrai Angel OS (ISO) lira tout avec mpv/VLC"]
+ "notes": ["Reprise de session : avant l arret ou le redemarrage, Angel OS retient tes applications ouvertes", "Il les rouvre au demarrage suivant", "Reglage dans Parametres > Systeme > Recuperation"]
 }
