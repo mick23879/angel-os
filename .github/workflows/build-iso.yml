@@ -45,6 +45,8 @@ jobs:
           ls -la profile/airootfs/root/
           # marque Angel OS
           sed -i 's/^iso_name=.*/iso_name="angel-os"/' profile/profiledef.sh
+          # numero de version clair dans le nom du fichier -> angel-os-1-x86_64.iso
+          sed -i 's/^iso_version=.*/iso_version="1"/' profile/profiledef.sh
           sed -i 's/^iso_label=.*/iso_label="ANGEL_OS_$(date +%Y%m)"/' profile/profiledef.sh || true
           sed -i 's/^iso_publisher=.*/iso_publisher="Angel OS <mick23879>"/' profile/profiledef.sh
           sed -i 's/^iso_application=.*/iso_application="Angel OS Live"/' profile/profiledef.sh
