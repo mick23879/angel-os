@@ -90,7 +90,7 @@ useradd -m -G wheel,video,audio,network,storage -s /bin/bash "$U"
 echo "$U:$PW" | chpasswd
 echo "root:$PW" | chpasswd
 echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/10-wheel
-printf 'if [ -z "\$WAYLAND_DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then angel-session; fi\n' > /home/$U/.bash_profile
+printf 'if [ -z "\$WAYLAND_DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then bash /usr/local/bin/angel-session; fi\n' > /home/$U/.bash_profile
 cp /home/$U/.bash_profile /home/$U/.zprofile
 chown $U:$U /home/$U/.bash_profile /home/$U/.zprofile
 CHROOT

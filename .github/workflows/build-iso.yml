@@ -48,10 +48,14 @@ jobs:
           sed -i 's/^iso_label=.*/iso_label="ANGEL_OS_$(date +%Y%m)"/' profile/profiledef.sh || true
           sed -i 's/^iso_publisher=.*/iso_publisher="Angel OS <mick23879>"/' profile/profiledef.sh
           sed -i 's/^iso_application=.*/iso_application="Angel OS Live"/' profile/profiledef.sh
-          # permissions du profil root
-          if ! grep -q '/root/.bash_profile' profile/profiledef.sh; then
-            sed -i 's#\["/root"\]="0:0:750"#["/root"]="0:0:750"\n  ["/root/.bash_profile"]="0:0:644"\n  ["/root/.zprofile"]="0:0:644"#' profile/profiledef.sh || true
-          fi
+          # PERMISSIONS : nos scripts doivent etre EXECUTABLES dans l'ISO.
+          # archiso n'applique que ce qui est dans file_permissions -> on ajoute nos scripts.
+          for s in angel-session angel-install angel-update angel-power angel-autopower angel-appimage angel-exe elyane elyane-setup; do
+            sed -i "/^file_permissions=(/a\\  [\"/usr/local/bin/$s\"]=\"0:0:755\"" profile/profiledef.sh
+          done
+          sed -i '/^file_permissions=(/a\  ["/root/.bash_profile"]="0:0:644"' profile/profiledef.sh
+          sed -i '/^file_permissions=(/a\  ["/root/.zprofile"]="0:0:644"' profile/profiledef.sh
+          echo "----- file_permissions -----"; grep -A20 '^file_permissions=(' profile/profiledef.sh | head -25
           echo "----- packages.x86_64 (fin) -----"; tail -n 25 profile/packages.x86_64
 
       - name: Build ISO (mkarchiso)
