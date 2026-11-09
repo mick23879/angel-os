@@ -1,0 +1,31 @@
+#!/bin/bash
+# ============================================================
+#  Angel OS - Lance le bureau (Hyprland) correctement
+#  - applique les reglages Angel (barre, fond, raccourcis)
+#  - en live (root) : contourne le blocage "root" de Hyprland
+# ============================================================
+
+# 1) s'assurer que les reglages Angel sont dans le dossier de l'utilisateur
+SRC=/usr/share/angel/skel
+if [ -d "$SRC/.config" ]; then
+  mkdir -p "$HOME/.config"
+  # -n : ne pas ecraser ce que l'utilisateur a deja modifie
+  cp -rn "$SRC/.config/." "$HOME/.config/" 2>/dev/null || true
+fi
+
+# 2) environnement d'affichage (Wayland + decodage video Intel)
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=Hyprland
+export LIBVA_DRIVER_NAME=iHD
+
+# 3) lancer Hyprland avec NOTRE fichier de reglages
+ARG=""
+CFG="$HOME/.config/hypr/hyprland.conf"
+[ -f "$CFG" ] && ARG="-c $CFG"
+# en root (mode test USB) il faut autoriser le lancement
+[ "$(id -u)" = "0" ] && ARG="$ARG --i-am-really-stupid"
+
+exec Hyprland $ARG

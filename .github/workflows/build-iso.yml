@@ -35,6 +35,14 @@ jobs:
           cat native/angel-iso/packages.extra >> profile/packages.x86_64
           # superposer nos fichiers (fond d'ecran, config Hyprland, motd...)
           cp -a native/angel-iso/airootfs/. profile/airootfs/
+          # copie fiable des reglages Angel dans /usr/share (toujours inclus par mkarchiso)
+          # -> angel-session les recopie dans le dossier de l'utilisateur au demarrage
+          mkdir -p profile/airootfs/usr/share/angel/skel/.config
+          cp -a profile/airootfs/root/.config/. profile/airootfs/usr/share/angel/skel/.config/
+          echo "----- reglages Angel stages -----"
+          find profile/airootfs/root/.config -type f | sort
+          find profile/airootfs/usr/share/angel/skel -type f | sort
+          ls -la profile/airootfs/root/
           # marque Angel OS
           sed -i 's/^iso_name=.*/iso_name="angel-os"/' profile/profiledef.sh
           sed -i 's/^iso_label=.*/iso_label="ANGEL_OS_$(date +%Y%m)"/' profile/profiledef.sh || true
@@ -42,7 +50,7 @@ jobs:
           sed -i 's/^iso_application=.*/iso_application="Angel OS Live"/' profile/profiledef.sh
           # permissions du profil root
           if ! grep -q '/root/.bash_profile' profile/profiledef.sh; then
-            sed -i 's#\["/root"\]="0:0:750"#["/root"]="0:0:750"\n  ["/root/.bash_profile"]="0:0:644"#' profile/profiledef.sh || true
+            sed -i 's#\["/root"\]="0:0:750"#["/root"]="0:0:750"\n  ["/root/.bash_profile"]="0:0:644"\n  ["/root/.zprofile"]="0:0:644"#' profile/profiledef.sh || true
           fi
           echo "----- packages.x86_64 (fin) -----"; tail -n 25 profile/packages.x86_64
 

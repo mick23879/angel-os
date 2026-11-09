@@ -52,6 +52,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 echo " -> Copie des reglages Angel OS..."
 install -Dm644 /usr/share/backgrounds/angel/angel.png /mnt/usr/share/backgrounds/angel/angel.png
+cp -a /usr/share/angel /mnt/usr/share/ 2>/dev/null || true
 mkdir -p /mnt/usr/local/bin
 cp /usr/local/bin/angel-* /usr/local/bin/elyane* /mnt/usr/local/bin/ 2>/dev/null || true
 chmod +x /mnt/usr/local/bin/angel-* /mnt/usr/local/bin/elyane* 2>/dev/null || true
@@ -89,8 +90,9 @@ useradd -m -G wheel,video,audio,network,storage -s /bin/bash "$U"
 echo "$U:$PW" | chpasswd
 echo "root:$PW" | chpasswd
 echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/10-wheel
-printf 'if [ -z "\$WAYLAND_DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then exec Hyprland; fi\n' > /home/$U/.bash_profile
-chown $U:$U /home/$U/.bash_profile
+printf 'if [ -z "\$WAYLAND_DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then angel-session; fi\n' > /home/$U/.bash_profile
+cp /home/$U/.bash_profile /home/$U/.zprofile
+chown $U:$U /home/$U/.bash_profile /home/$U/.zprofile
 CHROOT
 chmod +x /mnt/root/angel-chroot.sh
 arch-chroot /mnt /root/angel-chroot.sh

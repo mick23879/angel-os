@@ -33,6 +33,9 @@ if [ -f "$OV/etc/systemd/system/angel-flathub.service" ]; then
   sudo systemctl enable angel-flathub.service 2>/dev/null || true
   sudo systemctl start angel-flathub.service 2>/dev/null || true
 fi
+# reglages Angel de reference (/usr/share/angel/skel) pour le lancement du bureau
+sudo mkdir -p /usr/share/angel/skel/.config
+sudo cp -a "$OV/root/.config/." /usr/share/angel/skel/.config/ 2>/dev/null || true
 # reglages du bureau (pour l'utilisateur courant)
 for d in hypr waybar wofi gtk-3.0 gtk-4.0 foot; do
   if [ -d "$OV/root/.config/$d" ]; then mkdir -p "$HOME/.config/$d"; cp -r "$OV/root/.config/$d/." "$HOME/.config/$d/"; fi
