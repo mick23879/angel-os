@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Claude
+Comment=Discuter avec Claude pour continuer à construire Angel OS
+Exec=firefox https://claude.ai
+Icon=applications-internet
+Type=Application
+Categories=Network;Utility;
