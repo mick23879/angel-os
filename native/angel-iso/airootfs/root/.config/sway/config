@@ -14,6 +14,13 @@ input "type:keyboard" {
     xkb_layout fr
 }
 
+# Pave tactile : tapoter pour cliquer, defilement naturel
+input "type:touchpad" {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
 # --- Demarrage automatique ---
 exec waybar
 exec mako
