@@ -33,7 +33,7 @@ jobs:
           grep -q '^\[multilib\]' profile/pacman.conf || printf '\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> profile/pacman.conf
           # ajouter nos paquets
           cat native/angel-iso/packages.extra >> profile/packages.x86_64
-          # superposer nos fichiers (fond d'ecran, config Hyprland, motd...)
+          # superposer nos fichiers (fond d'ecran, config Sway, motd...)
           cp -a native/angel-iso/airootfs/. profile/airootfs/
           # copie fiable des reglages Angel dans /usr/share (toujours inclus par mkarchiso)
           # -> angel-session les recopie dans le dossier de l'utilisateur au demarrage
@@ -46,7 +46,7 @@ jobs:
           # marque Angel OS
           sed -i 's/^iso_name=.*/iso_name="angel-os"/' profile/profiledef.sh
           # numero de version clair dans le nom du fichier -> angel-os-1-x86_64.iso
-          sed -i 's/^iso_version=.*/iso_version="1"/' profile/profiledef.sh
+          sed -i 's/^iso_version=.*/iso_version="2"/' profile/profiledef.sh
           sed -i 's/^iso_label=.*/iso_label="ANGEL_OS_$(date +%Y%m)"/' profile/profiledef.sh || true
           sed -i 's/^iso_publisher=.*/iso_publisher="Angel OS <mick23879>"/' profile/profiledef.sh
           sed -i 's/^iso_application=.*/iso_application="Angel OS Live"/' profile/profiledef.sh

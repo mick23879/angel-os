@@ -1,0 +1,69 @@
+# ============================================================
+#   Angel OS  —  bureau Sway (stable, leger)
+# ============================================================
+
+# Modificateurs : Super (touche Windows) ET Alt (secours si Windows HS)
+set $mod Mod4
+set $alt Mod1
+
+# Fond d'ecran Angel
+output * bg /usr/share/backgrounds/angel/angel.png fill
+
+# Clavier francais (AZERTY)
+input "type:keyboard" {
+    xkb_layout fr
+}
+
+# --- Demarrage automatique ---
+exec waybar
+exec mako
+exec nm-applet --indicator
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec angel-autopower
+
+# --- Raccourcis (Super ET Alt) ---
+bindsym $mod+Return exec foot
+bindsym $alt+Return exec foot
+bindsym $mod+d exec wofi --show drun
+bindsym $alt+d exec wofi --show drun
+bindsym $mod+e exec thunar
+bindsym $alt+e exec thunar
+bindsym $mod+b exec firefox
+bindsym $alt+b exec firefox
+bindsym $mod+q kill
+bindsym $alt+Shift+q kill
+bindsym $mod+Shift+e exit
+bindsym $alt+Shift+e exit
+
+# Capture d'ecran (touche Impr ecran)
+bindsym Print exec grim -g "$(slurp)" ~/capture.png
+
+# Modes d'energie
+bindsym $mod+F1 exec angel-power eco
+bindsym $mod+F2 exec angel-power bal
+bindsym $mod+F3 exec angel-power perf
+
+# Deplacer le focus (Super + fleches)
+bindsym $mod+Left focus left
+bindsym $mod+Right focus right
+bindsym $mod+Up focus up
+bindsym $mod+Down focus down
+
+# Volume / luminosite
+bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+# --- Apparence ---
+gaps inner 6
+gaps outer 10
+default_border pixel 2
+font pango:Noto Sans 10
+
+# Couleurs des bords : violet/bleu Angel
+# client.<etat> <bord> <fond> <texte> <indicateur> <bord_enfant>
+client.focused   #7c3aff #7c3aff #ffffff #2f8cff #7c3aff
+client.unfocused #444455 #222233 #cccccc #222233 #444455
+client.focused_inactive #333344 #222233 #cccccc #222233 #333344

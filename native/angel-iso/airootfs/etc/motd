@@ -1,7 +1,6 @@
 
-   Angel OS  -  version Live
-   SUPER+Entree terminal | SUPER+D menu | SUPER+E fichiers | SUPER+B navigateur
-   Energie : SUPER+F1 economie | F2 equilibre | F3 performances
+   Angel OS  -  version Live  (bureau Sway)
+   Raccourcis : Super OU Alt  +  Entree=terminal  D=menu  E=fichiers  B=navigateur
+   Energie : Super+F1 economie | F2 equilibre | F3 performances
    Installer sur le disque :  sudo angel-install
    Installer l'assistante Elyane (apres installation) :  elyane-setup
-

@@ -3,11 +3,11 @@
   "position": "top",
   "height": 34,
   "spacing": 6,
-  "modules-left": ["custom/angel", "hyprland/workspaces"],
+  "modules-left": ["custom/angel", "sway/workspaces"],
   "modules-center": ["clock"],
   "modules-right": ["pulseaudio", "network", "battery", "tray"],
   "custom/angel": { "format": "  Angel OS", "tooltip": false },
-  "hyprland/workspaces": { "on-click": "activate", "format": "{id}" },
+  "sway/workspaces": { "disable-scroll": true, "format": "{name}" },
   "clock": { "format": "{:%H:%M  ·  %a %d %b}", "tooltip-format": "{:%A %d %B %Y}" },
   "battery": {
     "format": "{icon}  {capacity}%",

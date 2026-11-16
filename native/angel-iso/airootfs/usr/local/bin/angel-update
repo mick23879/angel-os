@@ -37,7 +37,7 @@ fi
 sudo mkdir -p /usr/share/angel/skel/.config
 sudo cp -a "$OV/root/.config/." /usr/share/angel/skel/.config/ 2>/dev/null || true
 # reglages du bureau (pour l'utilisateur courant)
-for d in hypr waybar wofi gtk-3.0 gtk-4.0 foot; do
+for d in sway waybar wofi gtk-3.0 gtk-4.0 foot; do
   if [ -d "$OV/root/.config/$d" ]; then mkdir -p "$HOME/.config/$d"; cp -r "$OV/root/.config/$d/." "$HOME/.config/$d/"; fi
 done
 # associations de fichiers (AppImage, .exe)

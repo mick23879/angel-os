@@ -1,4 +1,6 @@
-hyprland
+sway
+swayidle
+mako
 waybar
 wofi
 foot
@@ -11,7 +13,7 @@ mpv
 pavucontrol
 brightnessctl
 network-manager-applet
-xdg-desktop-portal-hyprland
+xdg-desktop-portal-wlr
 wl-clipboard
 grim
 slurp
