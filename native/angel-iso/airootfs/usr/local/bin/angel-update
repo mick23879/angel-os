@@ -1,48 +1,65 @@
 #!/bin/bash
-# ============ Mise a jour d'Angel OS (comme le prototype) ============
-set -e
+# ============================================================
+#  Mise a jour d'Angel OS
+#  Recupere les ameliorations depuis GitHub et les applique,
+#  puis rafraichit le bureau tout de suite (sans redemarrer).
+#  Version robuste : une etape qui echoue n'abime pas le reste.
+# ============================================================
+
 echo "   ======================================"
 echo "        Mise a jour d'Angel OS"
 echo "   ======================================"
 echo
+
+# 1) Internet ?
 if ! ping -c1 -W3 github.com >/dev/null 2>&1; then
   echo " Pas de connexion Internet. Branche le Wi-Fi et reessaie."
   exit 1
 fi
-echo " [1/3] Mise a jour du systeme (paquets)..."
-sudo sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
-sudo pacman -Syu --noconfirm
-# s'assurer que les 3 facons d'installer des logiciels sont presentes
-sudo pacman -S --needed --noconfirm flatpak gnome-software fuse2 wine winetricks lib32-mesa lib32-vulkan-intel || true
-echo " [2/3] Recuperation des ameliorations Angel OS..."
+
+# 2) Recuperer les ameliorations (petit, ~quelques Mo)
+echo " [1/2] Recuperation des ameliorations..."
 TMP=$(mktemp -d)
-git clone --depth 1 https://github.com/mick23879/angel-os "$TMP/ao" >/dev/null 2>&1
-OV="$TMP/ao/native/angel-iso/airootfs"
-echo " [3/3] Application..."
-# scripts Angel + Elyane
-sudo cp "$OV/usr/local/bin/"* /usr/local/bin/ 2>/dev/null || true
-sudo chmod +x /usr/local/bin/angel-* /usr/local/bin/elyane* 2>/dev/null || true
-# raccourcis du menu
-sudo cp "$OV/usr/share/applications/"*.desktop /usr/share/applications/ 2>/dev/null || true
-# fond d'ecran
-sudo mkdir -p /usr/share/backgrounds/angel
-sudo cp "$OV/usr/share/backgrounds/angel/"* /usr/share/backgrounds/angel/ 2>/dev/null || true
-# service Flathub (magasin d'applications)
-if [ -f "$OV/etc/systemd/system/angel-flathub.service" ]; then
-  sudo cp "$OV/etc/systemd/system/angel-flathub.service" /etc/systemd/system/ 2>/dev/null || true
-  sudo systemctl enable angel-flathub.service 2>/dev/null || true
-  sudo systemctl start angel-flathub.service 2>/dev/null || true
+if ! git clone --depth 1 https://github.com/mick23879/angel-os "$TMP/ao" >/dev/null 2>&1; then
+  echo " Telechargement impossible pour le moment. Reessaie plus tard."
+  rm -rf "$TMP"
+  exit 1
 fi
-# reglages Angel de reference (/usr/share/angel/skel) pour le lancement du bureau
+OV="$TMP/ao/native/angel-iso/airootfs"
+
+# verification minimale : le dossier recupere est bien celui d'Angel OS
+if [ ! -d "$OV/root/.config" ]; then
+  echo " Les fichiers recuperes ne sont pas corrects. Mise a jour annulee (rien n'a change)."
+  rm -rf "$TMP"
+  exit 1
+fi
+
+echo " [2/2] Application..."
+# --- Partie systeme (best-effort, ne bloque jamais) ---
+sudo cp -f "$OV/usr/local/bin/"*            /usr/local/bin/            2>/dev/null || true
+sudo chmod +x /usr/local/bin/angel-* /usr/local/bin/elyane*           2>/dev/null || true
+sudo cp -f "$OV/usr/share/applications/"*.desktop /usr/share/applications/ 2>/dev/null || true
+sudo mkdir -p /usr/share/backgrounds/angel
+sudo cp -f "$OV/usr/share/backgrounds/angel/"*     /usr/share/backgrounds/angel/ 2>/dev/null || true
+# reglages de reference (sert au 1er lancement du bureau)
 sudo mkdir -p /usr/share/angel/skel/.config
-sudo cp -a "$OV/root/.config/." /usr/share/angel/skel/.config/ 2>/dev/null || true
-# reglages du bureau (pour l'utilisateur courant)
+sudo cp -a  "$OV/root/.config/."            /usr/share/angel/skel/.config/ 2>/dev/null || true
+
+# --- Reglages du bureau pour l'utilisateur courant ---
 for d in sway waybar wofi gtk-3.0 gtk-4.0 foot; do
-  if [ -d "$OV/root/.config/$d" ]; then mkdir -p "$HOME/.config/$d"; cp -r "$OV/root/.config/$d/." "$HOME/.config/$d/"; fi
+  if [ -d "$OV/root/.config/$d" ]; then
+    mkdir -p "$HOME/.config/$d"
+    cp -rf "$OV/root/.config/$d/." "$HOME/.config/$d/" 2>/dev/null || true
+  fi
 done
-# associations de fichiers (AppImage, .exe)
-cp "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null || true
+cp -f "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null || true
+
 rm -rf "$TMP"
+
+# --- Appliquer tout de suite, sans redemarrer ---
+killall -SIGUSR2 waybar 2>/dev/null || true   # recharge l'apparence de la barre
+swaymsg reload           2>/dev/null || true   # recharge le bureau
+
 echo
-echo "   Angel OS est a jour ! Deconnecte-toi et reconnecte-toi"
-echo "   (ou SUPER+Maj+E puis reconnexion) pour voir les changements."
+echo "   Angel OS est a jour ! Le bureau vient de se rafraichir."
+echo "   (si un detail ne s'affiche pas, deconnecte-toi et reconnecte-toi)"
