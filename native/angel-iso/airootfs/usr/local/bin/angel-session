@@ -21,5 +21,30 @@ export LIBVA_DRIVER_NAME=iHD
 # rendu GLES2 : plus leger et plus sur sur la vieille carte Intel HD 4400
 export WLR_RENDERER=gles2
 
+# 2bis) Activation Angel OS (systeme installe seulement, PAS en mode Live/root)
+HASHF=/usr/share/angel/activation.sha256
+FLAG="$HOME/.config/angel/activated"
+if [ "$(id -u)" != "0" ] && [ -f "$HASHF" ] && [ ! -f "$FLAG" ]; then
+  want=$(cat "$HASHF")
+  while true; do
+    echo
+    echo "   ============================================"
+    echo "         Angel OS - Activation requise"
+    echo "   ============================================"
+    read -rsp "   Entre ta cle d'activation : " code; echo
+    got=$(printf '%s' "$code" | sha256sum | cut -d' ' -f1)
+    if [ "$got" = "$want" ]; then
+      mkdir -p "$(dirname "$FLAG")" 2>/dev/null
+      touch "$FLAG" 2>/dev/null
+      echo "   Cle acceptee. Bienvenue dans Angel OS !"
+      sleep 1
+      break
+    else
+      echo "   Cle incorrecte. Reessaie."
+      sleep 1
+    fi
+  done
+fi
+
 # 3) lancer le bureau Sway (lit ~/.config/sway/config)
 exec sway
