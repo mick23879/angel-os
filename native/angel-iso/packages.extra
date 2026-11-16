@@ -12,6 +12,7 @@ firefox
 mpv
 pavucontrol
 brightnessctl
+networkmanager
 network-manager-applet
 xdg-desktop-portal-wlr
 wl-clipboard

@@ -22,25 +22,27 @@ read -rsp " Mot de passe : " PW; echo
 read -rp " Nom de l'ordinateur [angel] : " HN; HN=${HN:-angel}
 
 # noms de partitions (nvme/mmc ont un 'p')
-if [[ "$D" == nvme* || "$D" == mmcblk* ]]; then P1="${DISK}p1"; P2="${DISK}p2"; else P1="${DISK}1"; P2="${DISK}2"; fi
+if [[ "$D" == nvme* || "$D" == mmcblk* ]]; then PX="${DISK}p"; else PX="${DISK}"; fi
+P2="${PX}2"; P3="${PX}3"
 
-echo " -> Partitionnement..."
+echo " -> Partitionnement (compatible BIOS/Legacy ET UEFI)..."
 sgdisk -Z "$DISK" >/dev/null
-sgdisk -n1:0:+512M -t1:ef00 -c1:EFI "$DISK" >/dev/null
-sgdisk -n2:0:0     -t2:8300 -c2:ROOT "$DISK" >/dev/null
+sgdisk -n1:0:+1M   -t1:ef02 -c1:BIOSBOOT "$DISK" >/dev/null
+sgdisk -n2:0:+512M -t2:ef00 -c2:EFI "$DISK" >/dev/null
+sgdisk -n3:0:0     -t3:8300 -c3:ROOT "$DISK" >/dev/null
 partprobe "$DISK" 2>/dev/null || true; sleep 2
-mkfs.fat -F32 "$P1" >/dev/null
-mkfs.ext4 -F "$P2" >/dev/null
-mount "$P2" /mnt
-mkdir -p /mnt/boot
-mount "$P1" /mnt/boot
+mkfs.fat -F32 "$P2" >/dev/null
+mkfs.ext4 -F "$P3" >/dev/null
+mount "$P3" /mnt
+mkdir -p /mnt/boot/efi
+mount "$P2" /mnt/boot/efi
 
 # activer multilib (necessaire pour Wine / logiciels 32 bits)
 sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 pacman -Sy >/dev/null 2>&1 || true
 
 echo " -> Installation du systeme (peut prendre 10-20 min)..."
-pacstrap -K /mnt base linux linux-firmware intel-ucode networkmanager sudo \
+pacstrap -K /mnt base linux linux-firmware intel-ucode networkmanager sudo grub efibootmgr \
   sway swayidle mako waybar wofi foot swaybg thunar thunar-volman gvfs firefox mpv imv \
   pavucontrol brightnessctl network-manager-applet xdg-desktop-portal-wlr \
   wl-clipboard grim slurp power-profiles-daemon mesa vulkan-intel intel-media-driver \
@@ -82,10 +84,13 @@ printf "127.0.0.1 localhost\n::1 localhost\n127.0.1.1 $HN\n" > /etc/hosts
 systemctl enable NetworkManager
 sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 systemctl enable angel-flathub.service || true
-bootctl install
-printf "default angel\ntimeout 2\n" > /boot/loader/loader.conf
-RUUID=\$(blkid -s PARTUUID -o value $P2)
-printf "title Angel OS\nlinux /vmlinuz-linux\ninitrd /intel-ucode.img\ninitrd /initramfs-linux.img\noptions root=PARTUUID=\$RUUID rw quiet\n" > /boot/loader/entries/angel.conf
+# Chargeur de demarrage GRUB (marche en BIOS/Legacy ET en UEFI)
+if [ -d /sys/firmware/efi ]; then
+  grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="AngelOS" --removable
+else
+  grub-install --target=i386-pc $DISK
+fi
+grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel,video,audio,network,storage -s /bin/bash "$U"
 echo "$U:$PW" | chpasswd
 echo "root:$PW" | chpasswd
