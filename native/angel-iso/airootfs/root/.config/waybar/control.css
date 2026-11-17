@@ -11,25 +11,26 @@ window#waybar {
   color: #ffffff;
 }
 
-/* petit bandeau de controle, en verre violet, coin haut-droite */
+/* panneau de controle : verre SOMBRE translucide et discret (plus de bleu vif) */
 .modules-right {
-  background-image: linear-gradient(135deg, rgba(124, 58, 255, 0.92), rgba(47, 140, 255, 0.92));
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(16, 18, 30, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   padding: 2px 4px;
   margin: 3px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 #custom-web, #custom-native, #custom-update, #custom-power {
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.90);
   font-weight: 600;
   padding: 3px 11px;
   margin: 0 1px;
   border-radius: 10px;
 }
 #custom-web:hover, #custom-native:hover, #custom-update:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
 }
-#custom-power { color: #ffdede; }
-#custom-power:hover { background: rgba(255, 90, 90, 0.55); color: #ffffff; }
+#custom-power { color: #ffc9c9; }
+#custom-power:hover { background: rgba(255, 90, 90, 0.45); color: #ffffff; }
