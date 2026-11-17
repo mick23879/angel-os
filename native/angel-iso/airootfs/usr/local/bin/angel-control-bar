@@ -1,0 +1,6 @@
+#!/bin/bash
+# Petit bandeau de controle (toujours au-dessus, meme sur le bureau web) :
+# Mettre a jour / Bureau web / Natif / Eteindre -- cliquable a la souris.
+pkill -f 'waybar.*control.jsonc' 2>/dev/null
+sleep 0.3
+exec waybar -c "$HOME/.config/waybar/control.jsonc" -s "$HOME/.config/waybar/control.css"
