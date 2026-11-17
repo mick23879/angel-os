@@ -44,6 +44,25 @@ sudo cp -f "$OV/usr/share/backgrounds/angel/"*     /usr/share/backgrounds/angel/
 # bureau web (l'artefact embarque, hors ligne)
 sudo mkdir -p /usr/share/angel/web
 sudo cp -f "$OV/usr/share/angel/web/"*             /usr/share/angel/web/ 2>/dev/null || true
+
+# Elyane dans le bureau web : autoriser l'IA locale a repondre a la page web (CORS), une seule fois
+if command -v ollama >/dev/null 2>&1 && [ ! -f /etc/systemd/system/ollama.service.d/angel-cors.conf ]; then
+  sudo mkdir -p /etc/systemd/system/ollama.service.d
+  sudo cp -f "$OV/etc/systemd/system/ollama.service.d/angel-cors.conf" /etc/systemd/system/ollama.service.d/ 2>/dev/null || true
+  sudo systemctl daemon-reload 2>/dev/null || true
+  sudo systemctl restart ollama   2>/dev/null || true
+fi
+# s'assurer que le modele personnalise "elyane" existe (sinon le creer)
+if command -v ollama >/dev/null 2>&1 && ! ollama list 2>/dev/null | grep -qiE '^elyane[: ]'; then
+  MFE="$(mktemp)"
+  cat > "$MFE" <<'MODELFILE'
+FROM qwen2.5:3b
+PARAMETER temperature 0.7
+SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, joyeuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, en mots simples et clairs, et JAMAIS dans une autre langue. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu."""
+MODELFILE
+  ollama create elyane -f "$MFE" >/dev/null 2>&1 || true
+  rm -f "$MFE"
+fi
 # reglages de reference (sert au 1er lancement du bureau)
 sudo mkdir -p /usr/share/angel/skel/.config
 sudo cp -a  "$OV/root/.config/."            /usr/share/angel/skel/.config/ 2>/dev/null || true

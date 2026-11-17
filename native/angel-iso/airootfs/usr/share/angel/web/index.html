@@ -9864,4 +9864,38 @@ trObs.observe(document.body,{childList:true,subtree:true,characterData:true,attr
 langueUI(prefs.ui||'fr');
 </script>
 
-<style id="angel-os-overrides">.pleinbt{display:none!important}</style></body></html>
+<style id="angel-os-overrides">.pleinbt{display:none!important}</style><script id="angel-elyane-hook">
+(function(){
+  var API='http://127.0.0.1:11434/api/generate';
+  function add(msgs,cls,txt){var d=document.createElement('div');d.className='m '+cls;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
+  function handle(inp){
+    var text=(inp.value||'').trim(); if(!text) return;
+    var chat=inp.closest('.chat'); var msgs=chat?chat.querySelector('.msgs'):document.querySelector('.msgs');
+    if(!msgs) return;
+    inp.value='';
+    add(msgs,'u',text);
+    var th=add(msgs,'b','…');
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'elyane',prompt:text,stream:false})})
+      .then(function(r){return r.json();})
+      .then(function(j){th.textContent=((j&&j.response)||'').trim()||"Je n'ai pas pu répondre, Michel.";msgs.scrollTop=msgs.scrollHeight;})
+      .catch(function(){th.textContent="Élyane hors ligne : ouvre un terminal et lance « elyane-setup », puis réessaie.";});
+  }
+  // Entree dans la zone de saisie de la chat Elyane -> vraie IA
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'||e.shiftKey) return;
+    var t=e.target;
+    if(!t||!t.matches||!t.matches('.cin input')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    handle(t);
+  },true);
+  // Clic sur un bouton d'envoi dans la chat (.cin button) -> vraie IA
+  document.addEventListener('click',function(e){
+    var b=e.target.closest? e.target.closest('.cin button'):null;
+    if(!b) return;
+    var inp=b.parentNode.querySelector('input'); if(!inp) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    handle(inp);
+  },true);
+})();
+</script></body></html>
