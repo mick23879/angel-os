@@ -78,9 +78,10 @@ done
 # creer les dossiers personnels + raccourcis de l'explorateur
 angel-folders 2>/dev/null || true
 
-# connexion automatique au demarrage (une seule fois) : plus de login a taper
-if [ ! -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]; then
-  angel-autologin 2>/dev/null || true
+# PAS de connexion automatique : l'utilisateur garde son mot de passe au demarrage
+if [ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]; then
+  sudo rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf 2>/dev/null || true
+  sudo systemctl daemon-reload 2>/dev/null || true
 fi
 cp -f "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null || true
 
