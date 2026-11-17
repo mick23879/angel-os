@@ -1,0 +1,23 @@
+#!/bin/bash
+# Menu Demarrer d'Angel OS : une liste propre et controlee (pas d'applis techniques).
+# Chaque ligne = un nom affiche + la commande a lancer.
+
+MENU=""
+declare -A ACT
+ajoute() { MENU+="$1"$'\n'; ACT["$1"]="$2"; }
+
+ajoute "Web (Firefox)"               "firefox"
+ajoute "Fichiers"                    "thunar"
+ajoute "Élyane (assistante)"         "foot -- elyane"
+ajoute "Terminal"                    "foot"
+ajoute "Changer le fond d'écran"     "angel-wall"
+ajoute "Logithèque (installer des applis)" "gnome-software"
+ajoute "Mettre à jour Angel OS"      "foot -- bash -lc 'angel-update; echo; read -p \"Appuie sur Entrée pour fermer...\" x'"
+ajoute "Claude (continuer Angel OS)" "firefox https://claude.ai"
+ajoute "Réglages du son"             "pavucontrol"
+ajoute "Déconnexion"                 "swaymsg exit"
+
+sel="$(printf '%s' "$MENU" | wofi --dmenu -p 'Angel OS')"
+[ -n "$sel" ] || exit 0
+cmd="${ACT[$sel]}"
+[ -n "$cmd" ] && setsid sh -c "$cmd" >/dev/null 2>&1 &

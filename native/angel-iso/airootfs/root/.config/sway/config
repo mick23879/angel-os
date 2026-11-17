@@ -32,8 +32,8 @@ exec angel-autopower
 # --- Raccourcis (Super ET Alt) ---
 bindsym $mod+Return exec foot
 bindsym $alt+Return exec foot
-bindsym $mod+d exec wofi --show drun
-bindsym $alt+d exec wofi --show drun
+bindsym $mod+d exec angel-menu
+bindsym $alt+d exec angel-menu
 bindsym $mod+e exec thunar
 bindsym $alt+e exec thunar
 bindsym $mod+b exec firefox

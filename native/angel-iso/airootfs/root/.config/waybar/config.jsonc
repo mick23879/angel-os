@@ -10,7 +10,7 @@
   "modules-center": ["custom/term", "custom/files", "custom/web", "custom/elyane"],
   "modules-right": ["custom/close", "pulseaudio", "network", "battery", "clock", "tray"],
 
-  "custom/angel":  { "format": "Démarrer", "tooltip": false, "on-click": "wofi --show drun" },
+  "custom/angel":  { "format": "Démarrer", "tooltip": false, "on-click": "angel-menu" },
   "custom/term":   { "format": "Terminal", "tooltip": false, "on-click": "foot" },
   "custom/files":  { "format": "Fichiers", "tooltip": false, "on-click": "thunar" },
   "custom/web":    { "format": "Web",      "tooltip": false, "on-click": "firefox" },
