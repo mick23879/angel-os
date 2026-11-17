@@ -21,14 +21,14 @@ window#waybar {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-#custom-web, #custom-native, #custom-update, #custom-power {
+#custom-web, #custom-native, #custom-wifi, #custom-update, #custom-power {
   color: rgba(255, 255, 255, 0.90);
   font-weight: 600;
   padding: 3px 11px;
   margin: 0 1px;
   border-radius: 10px;
 }
-#custom-web:hover, #custom-native:hover, #custom-update:hover {
+#custom-web:hover, #custom-native:hover, #custom-wifi:hover, #custom-update:hover {
   background: rgba(255, 255, 255, 0.16);
   color: #ffffff;
 }

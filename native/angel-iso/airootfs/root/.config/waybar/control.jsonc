@@ -7,10 +7,11 @@
   "spacing": 0,
   "modules-left": [],
   "modules-center": [],
-  "modules-right": ["custom/web", "custom/native", "custom/update", "custom/power"],
+  "modules-right": ["custom/web", "custom/native", "custom/wifi", "custom/update", "custom/power"],
 
   "custom/web":    { "format": "Bureau web",    "tooltip": false, "on-click": "angel-web" },
   "custom/native": { "format": "Natif",         "tooltip": false, "on-click": "pkill -f angel-web-profile" },
+  "custom/wifi":   { "format": "Wi-Fi",         "tooltip": false, "on-click": "pkill -f angel-web-profile; sleep 1; nm-connection-editor" },
   "custom/update": { "format": "Mettre à jour", "tooltip": false, "on-click": "pkill -f angel-web-profile; sleep 1; foot -- bash -lc 'angel-update; echo; read -p \"(Entree pour fermer) \" x'" },
   "custom/power":  { "format": "Éteindre",      "tooltip": false, "on-click": "systemctl poweroff" }
 }
