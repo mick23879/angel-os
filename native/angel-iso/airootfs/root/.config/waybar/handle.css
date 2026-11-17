@@ -8,15 +8,16 @@
 
 window#waybar { background: transparent; }
 
-/* petite poignee discrete du tiroir, coin haut-droite */
+/* poignee du tiroir : transparente et discrete (comme un bouton de plein ecran),
+   fixe, sans animation -> ne consomme pas la batterie. */
 #custom-handle {
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.78);
   font-weight: 800;
   padding: 1px 12px;
   border-radius: 12px;
-  background-image: linear-gradient(135deg, rgba(124, 58, 255, 0.85), rgba(47, 140, 255, 0.85));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  background: rgba(255, 255, 255, 0.12);
 }
 #custom-handle:hover {
-  background-image: linear-gradient(135deg, #7c3aff, #2f8cff);
+  color: #ffffff;
+  background: rgba(124, 58, 255, 0.55);
 }
