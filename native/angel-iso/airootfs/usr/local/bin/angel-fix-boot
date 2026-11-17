@@ -17,14 +17,20 @@ echo "       Angel OS - Reparation du demarrage"
 echo "   ============================================"
 echo
 
-# 1) Trouver la partition racine d'Angel OS (label ROOT, en ext4)
+# 1) Trouver la partition racine d'Angel OS (ext4)
 ROOTPART="$(blkid -L ROOT 2>/dev/null || true)"
 if [ -z "$ROOTPART" ]; then
-  echo " Partitions disponibles :"
-  lsblk -o NAME,SIZE,FSTYPE,LABEL | grep -iE 'ext4|NAME' || true
-  echo
-  read -rp " Ecris la partition racine d'Angel OS (ex: sda3) : " RP
-  ROOTPART="/dev/$RP"
+  # pas d'etiquette : chercher les partitions ext4
+  mapfile -t EXT4 < <(lsblk -rno NAME,FSTYPE | awk '$2=="ext4"{print "/dev/"$1}')
+  if [ "${#EXT4[@]}" -eq 1 ]; then
+    ROOTPART="${EXT4[0]}"
+  else
+    echo " Partitions disponibles :"
+    lsblk -o NAME,SIZE,FSTYPE,LABEL | grep -iE 'ext4|NAME' || true
+    echo
+    read -rp " Ecris la partition racine d'Angel OS (ex: sda3) : " RP
+    ROOTPART="/dev/$RP"
+  fi
 fi
 [ -b "$ROOTPART" ] || { echo " Partition introuvable : $ROOTPART"; exit 1; }
 
