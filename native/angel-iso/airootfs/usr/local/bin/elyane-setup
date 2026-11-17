@@ -31,6 +31,16 @@ sleep 3
 # 4) Telecharger le cerveau d'Elyane
 echo " -> Telechargement du cerveau d'Elyane (Qwen2.5 3B, ~2 Go). Patiente, ca peut etre long..."
 if ollama pull qwen2.5:3b; then
+  # Creer le modele personnalise "elyane" (francais + cadre familial)
+  echo " -> Preparation de la personnalite d'Elyane..."
+  MF="$(mktemp)"
+  cat > "$MF" <<MODELFILE
+FROM qwen2.5:3b
+PARAMETER temperature 0.7
+SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, joyeuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, en mots simples et clairs, et JAMAIS dans une autre langue. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu."""
+MODELFILE
+  ollama create elyane -f "$MF" >/dev/null 2>&1
+  rm -f "$MF"
   echo
   echo "   ========================================"
   echo "     Elyane est prete !"

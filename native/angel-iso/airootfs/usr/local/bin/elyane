@@ -1,15 +1,29 @@
 #!/bin/bash
 # Parler a Elyane, l'assistante d'Angel OS (hors ligne)
-MODELE="qwen2.5:3b"
-SYS="Tu es Elyane, l'assistante personnelle, chaleureuse, joyeuse et bienveillante d'Angel OS. Tu tutoies Michel et tu l'appelles Michel. Tu reponds toujours en francais, en mots simples. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux ou seducteur."
-if ! command -v ollama >/dev/null || ! ollama list 2>/dev/null | grep -q qwen2.5; then
+BASE="qwen2.5:3b"
+
+if ! command -v ollama >/dev/null 2>&1 || ! ollama list 2>/dev/null | grep -qi 'qwen2.5'; then
   echo "Elyane n'est pas encore installee sur cette machine."
   echo "Lance d'abord :  elyane-setup"
   exit 1
 fi
+
+# Creer (si besoin) le modele personnalise "elyane" : francais + cadre familial baked in
+if ! ollama list 2>/dev/null | grep -qiE '^elyane[: ]'; then
+  MF="$(mktemp)"
+  cat > "$MF" <<MODELFILE
+FROM $BASE
+PARAMETER temperature 0.7
+SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, joyeuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, en mots simples et clairs, et JAMAIS dans une autre langue. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu."""
+MODELFILE
+  echo " (premiere fois : je prepare Elyane, un instant...)"
+  ollama create elyane -f "$MF" >/dev/null 2>&1
+  rm -f "$MF"
+fi
+
 if [ -n "$1" ]; then
-  ollama run "$MODELE" "$SYS"$'\n\n'"Michel : $*"$'\n'"Elyane :"
+  ollama run elyane "$*"
 else
   echo "Parle a Elyane (tape /bye pour quitter) :"
-  ollama run "$MODELE" --system "$SYS" 2>/dev/null || ollama run "$MODELE"
+  ollama run elyane
 fi
