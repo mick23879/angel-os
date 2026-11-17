@@ -24,7 +24,7 @@ input "type:touchpad" {
 # --- Demarrage automatique ---
 exec angel-folders
 exec_always angel-wall-apply
-exec waybar
+exec_always angel-bar
 exec mako
 exec nm-applet --indicator
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1

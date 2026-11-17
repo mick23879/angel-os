@@ -1,0 +1,6 @@
+#!/bin/bash
+# (Re)lance proprement la barre des taches : arrete l'ancienne, demarre la nouvelle.
+# Appele par Sway (exec_always) : a chaque "reload", la barre redemarre sans doublon.
+pkill -x waybar 2>/dev/null
+sleep 0.3
+exec waybar
