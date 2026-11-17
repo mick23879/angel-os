@@ -12,19 +12,8 @@ window#waybar {
   color: #e7ecf7;
 }
 
-/* Groupe gauche vide mais avec une largeur reservee (invisible) : il equilibre
-   le groupe systeme de droite pour que le dock du centre soit VRAIMENT au milieu. */
-.modules-left {
-  min-width: 470px;
-  background: none;
-  border: none;
-  box-shadow: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* groupes en verre arrondi, bien SERRES (centre = dock / droite = systeme) */
-.modules-center, .modules-right {
+/* groupes en verre arrondi, bien SERRES (gauche = dock / droite = systeme) */
+.modules-left, .modules-right {
   background-image: linear-gradient(135deg, rgba(28, 22, 58, 0.90), rgba(14, 18, 42, 0.90));
   border: 1px solid rgba(160, 130, 255, 0.25);
   border-radius: 16px;
