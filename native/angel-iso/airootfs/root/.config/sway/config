@@ -66,8 +66,22 @@ bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 # --- Apparence ---
 gaps inner 6
 gaps outer 10
-default_border pixel 2
 font pango:Noto Sans 10
+
+# --- Fenetres facon Windows (libres, deplacables, redimensionnables) ---
+# - glisser la BARRE DE TITRE (en haut de la fenetre) = deplacer
+# - glisser un BORD ou un COIN de la fenetre = redimensionner
+# - Alt + glisser (n'importe ou sur la fenetre) = deplacer
+# - Alt + clic droit + glisser = redimensionner
+floating_modifier $alt normal
+default_border normal
+default_floating_border normal
+title_align center
+for_window [app_id=".*"] floating enable
+for_window [class=".*"] floating enable
+# centrer les nouvelles fenetres a l'ouverture
+for_window [app_id=".*"] move position center
+for_window [class=".*"] move position center
 
 # Couleurs des bords : violet/bleu Angel
 # client.<etat> <bord> <fond> <texte> <indicateur> <bord_enfant>
