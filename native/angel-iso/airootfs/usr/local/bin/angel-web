@@ -2,10 +2,14 @@
 # Bureau web d'Angel OS : affiche TON artefact en plein ecran (fonctionne hors ligne).
 # Pour quitter et revenir au bureau natif : Alt + F4 (ou ferme la fenetre).
 WEB="/usr/share/angel/web/index.html"
+
 if [ ! -f "$WEB" ]; then
-  echo "Le bureau web n'est pas encore installe."
-  echo "Fais d'abord : Mettre a jour Angel OS"
-  sleep 3
+  foot -- bash -c 'echo; echo "   Le bureau web n'\''est pas encore installe."; echo "   Fais d'\''abord : menu Demarrer -> Mettre a jour Angel OS"; echo; read -p "   (Entree pour fermer) " x' 2>/dev/null &
   exit 1
 fi
-exec firefox --kiosk "file://$WEB"
+
+# profil Firefox dedie : evite tout conflit avec le Firefox deja ouvert
+PROFILE="$HOME/.local/share/angel-web-profile"
+mkdir -p "$PROFILE"
+
+exec firefox --no-remote --profile "$PROFILE" --kiosk "file://$WEB"
