@@ -1,8 +1,10 @@
-width=460
-height=560
+width=480
+height=600
 location=center
 show=drun
-prompt=Rechercher une application
+prompt=Rechercher une application…
 allow_images=true
+image_size=38
 insensitive=true
 no_actions=true
+gtk_dark=true

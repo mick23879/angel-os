@@ -1,9 +1,48 @@
-window { background: rgba(12,16,34,0.94); border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); }
-#input { margin: 14px; padding: 11px 15px; border-radius: 12px; border: none; background: rgba(255,255,255,0.08); color: #e7ecf7; }
-#input:focus { outline: none; box-shadow: inset 0 0 0 2px #7c3aff; }
-#inner-box { margin: 6px 10px 12px; }
+* {
+  font-family: "Noto Sans";
+  font-size: 14px;
+}
+
+/* fenetre du menu : verre sombre violet, coins arrondis, bord lumineux */
+window {
+  background-image: linear-gradient(160deg, rgba(24, 18, 52, 0.97), rgba(10, 13, 32, 0.97));
+  border-radius: 22px;
+  border: 1px solid rgba(160, 130, 255, 0.35);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+/* barre de recherche facon pastille */
+#input {
+  margin: 16px 16px 8px 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: #f2f0ff;
+  font-size: 15px;
+}
+#input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #7c3aff;
+  background: rgba(124, 58, 255, 0.12);
+}
+
+#inner-box { margin: 6px 10px 14px 10px; }
 #scroll { margin: 0; }
-#entry { padding: 10px 14px; border-radius: 12px; margin: 2px 6px; }
-#entry:selected { background: linear-gradient(90deg, #7c3aff, #2f8cff); }
-#text { color: #e7ecf7; }
-#img { margin-right: 10px; }
+
+/* chaque application */
+#entry {
+  padding: 11px 14px;
+  border-radius: 14px;
+  margin: 3px 8px;
+}
+#entry:hover {
+  background: rgba(124, 58, 255, 0.16);
+}
+#entry:selected {
+  background-image: linear-gradient(135deg, #7c3aff, #2f8cff);
+  box-shadow: 0 4px 14px rgba(124, 58, 255, 0.5);
+}
+
+#text { color: #ece9ff; margin-left: 4px; }
+#img { margin-right: 12px; }
