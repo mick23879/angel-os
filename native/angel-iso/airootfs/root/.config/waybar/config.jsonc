@@ -5,7 +5,7 @@
   "margin-bottom": 6,
   "margin-left": 12,
   "margin-right": 12,
-  "spacing": 6,
+  "spacing": 2,
   "modules-left": [],
   "modules-center": ["custom/angel", "custom/term", "custom/files", "custom/web", "custom/elyane"],
   "modules-right": ["custom/close", "pulseaudio", "network", "battery", "clock", "tray"],
