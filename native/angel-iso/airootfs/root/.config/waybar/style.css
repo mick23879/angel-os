@@ -12,7 +12,16 @@ window#waybar {
   color: #e7ecf7;
 }
 
-/* groupes en verre arrondi (gauche / centre / droite) facon Windows 11/12 */
+/* groupe vide (gauche) : invisible, pour que le centre soit bien centre facon Windows 11 */
+.modules-left:empty {
+  background: none;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* groupes en verre arrondi (centre = dock / droite = systeme) facon Windows 11/12 */
 .modules-left, .modules-center, .modules-right {
   background-image: linear-gradient(135deg, rgba(28, 22, 58, 0.88), rgba(14, 18, 42, 0.88));
   border: 1px solid rgba(160, 130, 255, 0.28);
