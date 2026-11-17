@@ -1,18 +1,44 @@
 #!/bin/bash
 # Installe Elyane, l'assistante hors ligne d'Angel OS (a lancer apres l'installation, avec Internet)
-set -e
 echo "   ========================================"
 echo "     Installation d'Elyane (hors ligne)"
 echo "   ========================================"
 echo
-if ! command -v ollama >/dev/null; then
-  echo " -> Installation du moteur local (ollama)..."
-  sudo pacman -S --needed --noconfirm ollama
+
+# 1) Internet ?
+if ! ping -c1 -W3 archlinux.org >/dev/null 2>&1; then
+  echo " Pas de connexion Internet. Branche le Wi-Fi et reessaie."
+  exit 1
 fi
+
+# 2) Moteur local ollama
+if ! command -v ollama >/dev/null 2>&1; then
+  echo " -> Installation du moteur local (ollama)..."
+  if ! sudo pacman -S --needed --noconfirm ollama; then
+    echo "    (mise a jour de la liste des paquets, puis nouvel essai...)"
+    if ! sudo pacman -Sy --needed --noconfirm ollama; then
+      echo " Installation d'ollama impossible pour le moment. Reessaie plus tard."
+      exit 1
+    fi
+  fi
+fi
+
+# 3) Demarrer le moteur local
 echo " -> Demarrage du moteur..."
-sudo systemctl enable --now ollama
-sleep 2
-echo " -> Telechargement du cerveau d'Elyane (Qwen2.5 3B, ~2 Go). Patiente..."
-ollama pull qwen2.5:3b
-echo
-echo "   Elyane est prete ! Tape :  elyane   pour lui parler."
+sudo systemctl enable --now ollama 2>/dev/null || true
+sleep 3
+
+# 4) Telecharger le cerveau d'Elyane
+echo " -> Telechargement du cerveau d'Elyane (Qwen2.5 3B, ~2 Go). Patiente, ca peut etre long..."
+if ollama pull qwen2.5:3b; then
+  echo
+  echo "   ========================================"
+  echo "     Elyane est prete !"
+  echo "     Clique sur Elyane dans la barre/menu,"
+  echo "     ou tape dans un terminal :  elyane"
+  echo "   ========================================"
+else
+  echo
+  echo " Le telechargement du modele a echoue (Internet ?). Relance :  elyane-setup"
+  exit 1
+fi

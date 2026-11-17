@@ -1,16 +1,21 @@
 {
   "layer": "top",
   "position": "bottom",
-  "height": 40,
+  "height": 46,
   "margin-bottom": 6,
   "margin-left": 12,
   "margin-right": 12,
   "spacing": 6,
-  "modules-left": ["custom/angel", "sway/workspaces"],
-  "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "network", "battery", "tray"],
-  "custom/angel": { "format": "  Angel OS", "tooltip": false },
-  "sway/workspaces": { "disable-scroll": true, "format": "{name}" },
+  "modules-left": ["custom/angel"],
+  "modules-center": ["custom/term", "custom/files", "custom/web", "custom/elyane"],
+  "modules-right": ["pulseaudio", "network", "battery", "clock", "tray"],
+
+  "custom/angel":  { "format": "   Démarrer", "tooltip": false, "on-click": "wofi --show drun" },
+  "custom/term":   { "format": "", "tooltip": false, "on-click": "foot" },
+  "custom/files":  { "format": "", "tooltip": false, "on-click": "thunar" },
+  "custom/web":    { "format": "", "tooltip": false, "on-click": "firefox" },
+  "custom/elyane": { "format": "", "tooltip": false, "on-click": "foot -- elyane" },
+
   "clock": { "format": "{:%H:%M  ·  %a %d %b}", "tooltip-format": "{:%A %d %B %Y}" },
   "battery": {
     "format": "{icon}  {capacity}%",
