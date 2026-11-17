@@ -7,14 +7,20 @@
   "spacing": 4,
   "modules-left": [],
   "modules-center": [],
-  "modules-right": ["network", "custom/handle"],
+  "modules-right": ["network", "battery", "custom/handle"],
 
   "network": {
     "format-wifi": "● {essid}",
     "format-ethernet": "● filaire",
     "format-disconnected": "○ hors ligne",
     "tooltip-format": "{ifname}: {ipaddr}",
-    "max-length": 18
+    "max-length": 16
+  },
+  "battery": {
+    "format": "{capacity}%",
+    "format-charging": "{capacity}% ↑",
+    "states": { "warning": 20, "critical": 10 },
+    "tooltip": false
   },
   "custom/handle": { "format": "•••", "tooltip": false, "on-click": "angel-control-toggle" }
 }
