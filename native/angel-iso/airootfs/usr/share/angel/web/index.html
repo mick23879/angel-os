@@ -9946,6 +9946,8 @@ langueUI(prefs.ui||'fr');
   },true);
   // ajoute le micro quand la chat apparait
   try{ var mo=new MutationObserver(addMic); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  function majBatt(){ fetch('http://127.0.0.1:8777/status').then(function(r){return r.json();}).then(function(j){ if(typeof appliqueBatterie==='function' && j && j.bat!=null){ try{ appliqueBatterie(j.bat, !!j.charge, ''); }catch(e){} } }).catch(function(){}); }
+  setInterval(majBatt, 20000); setTimeout(majBatt, 1500);
   setInterval(addMic, 1500); addMic();
 })();
 </script></body></html>
