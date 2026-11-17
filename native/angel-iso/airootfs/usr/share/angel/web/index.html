@@ -9875,8 +9875,8 @@ langueUI(prefs.ui||'fr');
     if(/\b(ouvre|lance|demarre|affiche)\b.*(terminal|console|invite de commande)/.test(s)) return 'term';
     if(/\b(ouvre|lance|demarre|affiche|montre)\b.*(fichier|explorateur|dossier|document)/.test(s)) return 'files';
     if(/\b(change|changer|met|mets|nouveau|modifie)\b.*(fond|papier peint|ecran d.accueil|wallpaper)/.test(s)) return 'wallpaper';
-    if(/\b(met|mets|mettre|fait|fais)\b.*\b(a jour|mise a jour)\b/.test(s)||/\bmise a jour\b/.test(s)) return 'update';
-    if(/\b(eteins|eteindre|eteint|arrete l.ordi|coupe le pc|shutdown|arrete l.ordinateur)\b/.test(s)) return 'poweroff';
+    if(/\bmise a jour\b/.test(s)||(/\b(met|mets|mettre|fais)\b/.test(s)&&/\ba jour\b/.test(s))) return 'update';
+    if(/\b(eteins|eteindre|eteint|coupe le pc|shutdown|arrete l.ordinateur|arrete l.ordi)\b/.test(s)) return 'poweroff';
     if(/\b(redemarre|redemarrer|reboot|relance l.ordi)\b/.test(s)) return 'reboot';
     if(/\b(deconnexion|deconnecte|ferme la session|log ?out)\b/.test(s)) return 'logout';
     return null;
@@ -9888,14 +9888,8 @@ langueUI(prefs.ui||'fr');
     if(!msgs) return;
     inp.value='';
     add(msgs,'u',text);
-    // 1) est-ce une demande d'ACTION ?
     var a=detecte(noaccents(text));
-    if(a){
-      add(msgs,'b',REP[a]||"D'accord, Michel.");
-      try{ new Image().src=ACT+a+'&t='+Date.now(); }catch(e){}
-      return;
-    }
-    // 2) sinon, vraie conversation avec l'IA (en streaming)
+    if(a){ add(msgs,'b',REP[a]||"D'accord, Michel."); try{ new Image().src=ACT+a+'&t='+Date.now(); }catch(e){} return; }
     var th=add(msgs,'b','…'); var started=false;
     fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'elyane',prompt:text,stream:true,keep_alive:'30m',options:{num_predict:200}})})
@@ -9912,15 +9906,44 @@ langueUI(prefs.ui||'fr');
       })
       .catch(function(){th.textContent="Élyane hors ligne : ouvre un terminal et lance « elyane-setup », puis réessaie.";});
   }
+  // ----- Micro (reconnaissance vocale) -----
+  function startVoice(cin){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    var msgs=cin.closest('.chat')?cin.closest('.chat').querySelector('.msgs'):document.querySelector('.msgs');
+    var mic=cin.querySelector('.angel-mic'); var inp=cin.querySelector('input');
+    if(!SR){ if(msgs) add(msgs,'b',"La reconnaissance vocale n'est pas disponible dans ce navigateur. Dis-moi « installe la voix » et je mets la voix hors ligne."); return; }
+    var rec; try{ rec=new SR(); }catch(e){ return; }
+    rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
+    if(mic) mic.textContent='…';
+    rec.onresult=function(ev){ var t=ev.results[0][0].transcript; if(inp){ inp.value=t; handle(inp); } };
+    rec.onerror=function(){ if(msgs) add(msgs,'b',"Je n'ai pas bien entendu. (La voix marche mieux avec Internet ; sinon je peux installer la voix hors ligne.)"); };
+    rec.onend=function(){ if(mic) mic.textContent='🎤'; };
+    try{ rec.start(); }catch(e){}
+  }
+  function addMic(){
+    var cins=document.querySelectorAll('.cin');
+    for(var i=0;i<cins.length;i++){ (function(cin){
+      if(cin.querySelector('.angel-mic')) return;
+      var b=document.createElement('button');
+      b.className='angel-mic'; b.type='button'; b.textContent='🎤'; b.title='Parler à Élyane';
+      b.style.cssText='margin-left:6px;flex:none;border:0;cursor:pointer;width:38px;height:38px;border-radius:50%;font-size:17px;background:rgba(124,58,255,.28);color:#fff';
+      b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); startVoice(cin); });
+      cin.appendChild(b);
+    })(cins[i]); }
+  }
+  // saisie clavier
   document.addEventListener('keydown',function(e){
     if(e.key!=='Enter'||e.shiftKey) return;
     var t=e.target; if(!t||!t.matches||!t.matches('.cin input')) return;
     e.preventDefault(); e.stopImmediatePropagation(); handle(t);
   },true);
   document.addEventListener('click',function(e){
-    var b=e.target.closest? e.target.closest('.cin button'):null; if(!b) return;
+    var b=e.target.closest? e.target.closest('.cin button:not(.angel-mic)'):null; if(!b) return;
     var inp=b.parentNode.querySelector('input'); if(!inp) return;
     e.preventDefault(); e.stopImmediatePropagation(); handle(inp);
   },true);
+  // ajoute le micro quand la chat apparait
+  try{ var mo=new MutationObserver(addMic); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  setInterval(addMic, 1500); addMic();
 })();
 </script></body></html>
