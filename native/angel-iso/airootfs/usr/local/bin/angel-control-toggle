@@ -1,0 +1,7 @@
+#!/bin/bash
+# Ouvre/ferme le panneau de controle (le "tiroir").
+# S'il est ouvert -> on le ferme ; sinon -> on l'ouvre.
+if pkill -f 'waybar.*control.jsonc' 2>/dev/null; then
+  exit 0
+fi
+setsid waybar -c "$HOME/.config/waybar/control.jsonc" -s "$HOME/.config/waybar/control.css" >/dev/null 2>&1 < /dev/null &

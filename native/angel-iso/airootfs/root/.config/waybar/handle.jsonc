@@ -1,0 +1,12 @@
+{
+  "layer": "overlay",
+  "position": "top",
+  "height": 26,
+  "margin-top": 4,
+  "margin-right": 6,
+  "spacing": 0,
+  "modules-left": [],
+  "modules-center": [],
+  "modules-right": ["custom/handle"],
+  "custom/handle": { "format": "•••", "tooltip": false, "on-click": "angel-control-toggle" }
+}

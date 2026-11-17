@@ -1,0 +1,5 @@
+#!/bin/bash
+# Poignee du tiroir de controle (toujours visible, coin haut-droite, cliquable a la souris).
+pkill -f 'waybar.*handle.jsonc' 2>/dev/null
+sleep 0.3
+exec waybar -c "$HOME/.config/waybar/handle.jsonc" -s "$HOME/.config/waybar/handle.css"

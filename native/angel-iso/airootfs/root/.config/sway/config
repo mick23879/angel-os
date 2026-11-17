@@ -27,8 +27,8 @@ input "type:touchpad" {
 exec_always angel-wall-apply   # fond d'ecran : securite si le bureau web n'est pas affiche (sinon ecran noir)
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec angel-autopower           # gestion d'energie = economie de batterie
-# petit bandeau de controle TOUJOURS visible (meme sur le bureau web) : cliquable a la souris
-exec_always angel-control-bar
+# poignee discrete du tiroir de controle (toujours visible, haut-droite) : clic = ouvre/ferme le panneau
+exec_always angel-control-handle
 # Le bureau web (ton artefact) en plein ecran = ce que tu vois
 exec angel-web
 # Maintenance au clavier si besoin : Alt+F4 ferme le web, Alt+Entree = terminal, Alt+D = menu
