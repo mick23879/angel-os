@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Définir comme fond d'écran</name>
+	<submenu></submenu>
+	<unique-id>angel-wallpaper-1</unique-id>
+	<command>angel-wall-set %f</command>
+	<description>Utiliser cette image comme fond d'écran Angel OS</description>
+	<range></range>
+	<patterns>*.jpg;*.jpeg;*.png;*.webp</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Ouvrir un terminal ici</name>
+	<submenu></submenu>
+	<unique-id>angel-term-here-1</unique-id>
+	<command>foot --working-directory %f</command>
+	<description>Ouvrir un terminal dans ce dossier</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+</actions>

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Cree les dossiers personnels (facon Windows) et les ajoute a la barre laterale de l'explorateur.
+cd "$HOME" 2>/dev/null || exit 0
+
+for d in Documents Images Téléchargements Musique Vidéos Bureau; do
+  mkdir -p "$HOME/$d"
+done
+
+# Raccourcis dans la barre laterale de Thunar (seulement si pas deja configures)
+BK="$HOME/.config/gtk-3.0/bookmarks"
+mkdir -p "$(dirname "$BK")"
+if [ ! -s "$BK" ]; then
+  {
+    printf 'file://%s/Documents Documents\n'            "$HOME"
+    printf 'file://%s/Images Images\n'                  "$HOME"
+    printf 'file://%s/Téléchargements Téléchargements\n' "$HOME"
+    printf 'file://%s/Musique Musique\n'                "$HOME"
+    printf 'file://%s/Vidéos Vidéos\n'                  "$HOME"
+  } > "$BK"
+fi

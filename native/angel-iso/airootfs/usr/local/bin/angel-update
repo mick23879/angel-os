@@ -46,12 +46,15 @@ sudo mkdir -p /usr/share/angel/skel/.config
 sudo cp -a  "$OV/root/.config/."            /usr/share/angel/skel/.config/ 2>/dev/null || true
 
 # --- Reglages du bureau pour l'utilisateur courant ---
-for d in sway waybar wofi gtk-3.0 gtk-4.0 foot; do
+for d in sway waybar wofi gtk-3.0 gtk-4.0 foot Thunar; do
   if [ -d "$OV/root/.config/$d" ]; then
     mkdir -p "$HOME/.config/$d"
     cp -rf "$OV/root/.config/$d/." "$HOME/.config/$d/" 2>/dev/null || true
   fi
 done
+
+# creer les dossiers personnels + raccourcis de l'explorateur
+angel-folders 2>/dev/null || true
 cp -f "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null || true
 
 rm -rf "$TMP"

@@ -1,0 +1,6 @@
+#!/bin/bash
+# Definit l'image passee en argument comme fond d'ecran (utilise par le clic droit de Thunar).
+[ -f "$1" ] || exit 0
+mkdir -p "$HOME/.config/angel"
+echo "$1" > "$HOME/.config/angel/wallpaper"
+angel-wall-apply

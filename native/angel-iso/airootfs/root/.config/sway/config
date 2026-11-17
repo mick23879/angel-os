@@ -22,6 +22,7 @@ input "type:touchpad" {
 }
 
 # --- Demarrage automatique ---
+exec angel-folders
 exec_always angel-wall-apply
 exec waybar
 exec mako
