@@ -26,7 +26,11 @@ SYS = {
 }
 
 def faire(a):
-    if a in APPS:
+    if a == "native":        # fermer le bureau web (revenir au natif)
+        fermer_web()
+    elif a == "webdesktop":  # rouvrir le bureau web
+        sh(["angel-web"])
+    elif a in APPS:
         sh(APPS[a]); fermer_web()
     elif a in SYS:
         sh(SYS[a])
