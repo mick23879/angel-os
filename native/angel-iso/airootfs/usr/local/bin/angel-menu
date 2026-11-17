@@ -15,7 +15,10 @@ ajoute "Logithèque (installer des applis)" "gnome-software"
 ajoute "Mettre à jour Angel OS"      "foot -- bash -lc 'angel-update; echo; read -p \"Appuie sur Entrée pour fermer...\" x'"
 ajoute "Claude (continuer Angel OS)" "firefox https://claude.ai"
 ajoute "Réglages du son"             "pavucontrol"
-ajoute "Déconnexion"                 "swaymsg exit"
+ajoute "— — — — — — — — — —"         ""
+ajoute "Déconnexion (fermer la session)" "swaymsg exit"
+ajoute "Redémarrer l'ordinateur"     "systemctl reboot"
+ajoute "Éteindre l'ordinateur"       "systemctl poweroff"
 
 sel="$(printf '%s' "$MENU" | wofi --dmenu -p 'Angel OS')"
 [ -n "$sel" ] || exit 0
