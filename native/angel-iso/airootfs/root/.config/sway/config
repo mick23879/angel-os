@@ -83,6 +83,11 @@ for_window [class=".*"] floating enable
 for_window [app_id=".*"] move position center
 for_window [class=".*"] move position center
 
+# Souris sur la BARRE DE TITRE (le bandeau en haut de la fenetre) :
+#  - clic du milieu (3 doigts) sur la barre de titre -> FERMER la fenetre
+# (ne s'applique PAS a l'interieur des fenetres : le coller a 3 doigts marche toujours dans le terminal)
+bindsym button2 kill
+
 # Couleurs des bords : violet/bleu Angel
 # client.<etat> <bord> <fond> <texte> <indicateur> <bord_enfant>
 client.focused   #7c3aff #7c3aff #ffffff #2f8cff #7c3aff
