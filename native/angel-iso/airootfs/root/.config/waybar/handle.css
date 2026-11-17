@@ -21,3 +21,15 @@ window#waybar { background: transparent; }
   color: rgba(255, 255, 255, 0.95);
   background: rgba(255, 255, 255, 0.18);
 }
+
+/* petit temoin de connexion : vert = connecte, rouge = hors ligne */
+#network {
+  color: rgba(150, 240, 175, 0.92);
+  background: rgba(255, 255, 255, 0.10);
+  padding: 1px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+#network.disconnected {
+  color: rgba(255, 160, 160, 0.95);
+}

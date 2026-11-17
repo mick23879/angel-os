@@ -4,9 +4,17 @@
   "height": 26,
   "margin-top": 4,
   "margin-right": 6,
-  "spacing": 0,
+  "spacing": 4,
   "modules-left": [],
   "modules-center": [],
-  "modules-right": ["custom/handle"],
+  "modules-right": ["network", "custom/handle"],
+
+  "network": {
+    "format-wifi": "● {essid}",
+    "format-ethernet": "● filaire",
+    "format-disconnected": "○ hors ligne",
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "max-length": 18
+  },
   "custom/handle": { "format": "•••", "tooltip": false, "on-click": "angel-control-toggle" }
 }
