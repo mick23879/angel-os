@@ -76,9 +76,11 @@ font pango:Noto Sans 10
 # - Alt + glisser (n'importe ou sur la fenetre) = deplacer
 # - Alt + clic droit + glisser = redimensionner
 floating_modifier $alt normal
-default_border normal
-default_floating_border normal
+default_border normal 1
+default_floating_border normal 1
 title_align center
+titlebar_padding 12 6
+titlebar_border_thickness 0
 for_window [app_id=".*"] floating enable
 for_window [class=".*"] floating enable
 # centrer les nouvelles fenetres a l'ouverture
@@ -90,8 +92,9 @@ for_window [class=".*"] move position center
 # (ne s'applique PAS a l'interieur des fenetres : le coller a 3 doigts marche toujours dans le terminal)
 bindsym button2 kill
 
-# Couleurs des bords : violet/bleu Angel
-# client.<etat> <bord> <fond> <texte> <indicateur> <bord_enfant>
-client.focused   #7c3aff #7c3aff #ffffff #2f8cff #7c3aff
-client.unfocused #444455 #222233 #cccccc #222233 #444455
-client.focused_inactive #333344 #222233 #cccccc #222233 #333344
+# Couleurs des fenetres : barre de titre violet profond, bord lumineux (Angel)
+# client.<etat>        <bord>  <fond-titre> <texte>  <indicateur> <bord-enfant>
+client.focused          #7c3aff #241c44     #ffffff  #2f8cff      #7c3aff
+client.focused_inactive #2b2446 #1a1630     #b9b2d8  #1a1630      #2b2446
+client.unfocused        #232330 #15151f     #8a8fa6  #15151f      #232330
+client.urgent           #ff6b8a #3a1420     #ffffff  #ff6b8a      #ff6b8a
