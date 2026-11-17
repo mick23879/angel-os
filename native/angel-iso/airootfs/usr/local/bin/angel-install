@@ -21,21 +21,38 @@ read -rp " Nom d'utilisateur : " U
 read -rsp " Mot de passe : " PW; echo
 read -rp " Nom de l'ordinateur [angel] : " HN; HN=${HN:-angel}
 
+# detecter le mode de demarrage du PC
+if [ -d /sys/firmware/efi ]; then MODE=uefi; else MODE=bios; fi
+echo " Mode de demarrage detecte : $MODE"
+
 # noms de partitions (nvme/mmc ont un 'p')
 if [[ "$D" == nvme* || "$D" == mmcblk* ]]; then PX="${DISK}p"; else PX="${DISK}"; fi
-P2="${PX}2"; P3="${PX}3"
 
-echo " -> Partitionnement (compatible BIOS/Legacy ET UEFI)..."
-sgdisk -Z "$DISK" >/dev/null
-sgdisk -n1:0:+1M   -t1:ef02 -c1:BIOSBOOT "$DISK" >/dev/null
-sgdisk -n2:0:+512M -t2:ef00 -c2:EFI "$DISK" >/dev/null
-sgdisk -n3:0:0     -t3:8300 -c3:ROOT "$DISK" >/dev/null
-partprobe "$DISK" 2>/dev/null || true; sleep 2
-mkfs.fat -F32 "$P2" >/dev/null
-mkfs.ext4 -F "$P3" >/dev/null
-mount "$P3" /mnt
-mkdir -p /mnt/boot/efi
-mount "$P2" /mnt/boot/efi
+if [ "$MODE" = uefi ]; then
+  # UEFI : table GPT (zone BIOS + zone EFI + racine)
+  echo " -> Partitionnement (UEFI / GPT)..."
+  P2="${PX}2"; P3="${PX}3"
+  sgdisk -Z "$DISK" >/dev/null
+  sgdisk -n1:0:+1M   -t1:ef02 -c1:BIOSBOOT "$DISK" >/dev/null
+  sgdisk -n2:0:+512M -t2:ef00 -c2:EFI "$DISK" >/dev/null
+  sgdisk -n3:0:0     -t3:8300 -c3:ROOT "$DISK" >/dev/null
+  partprobe "$DISK" 2>/dev/null || true; sleep 2
+  mkfs.fat -F32 "$P2" >/dev/null
+  mkfs.ext4 -F -L ROOT "$P3" >/dev/null
+  mount "$P3" /mnt
+  mkdir -p /mnt/boot/efi
+  mount "$P2" /mnt/boot/efi
+else
+  # BIOS/Legacy (vieux PC) : table MBR simple, une partition amorcable
+  echo " -> Partitionnement (BIOS/Legacy / MBR)..."
+  P3="${PX}1"
+  sgdisk -Z "$DISK" >/dev/null 2>&1 || true
+  wipefs -a "$DISK"  >/dev/null 2>&1 || true
+  printf 'label: dos\n,,83,*\n' | sfdisk --force "$DISK" >/dev/null
+  partprobe "$DISK" 2>/dev/null || true; sleep 2
+  mkfs.ext4 -F -L ROOT "$P3" >/dev/null
+  mount "$P3" /mnt
+fi
 
 # activer multilib (necessaire pour Wine / logiciels 32 bits)
 sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
@@ -87,8 +104,9 @@ systemctl enable angel-flathub.service || true
 # Chargeur de demarrage GRUB (marche en BIOS/Legacy ET en UEFI)
 if [ -d /sys/firmware/efi ]; then
   grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="AngelOS" --removable
+  grub-install --target=i386-pc --recheck $DISK 2>/dev/null || true
 else
-  grub-install --target=i386-pc $DISK
+  grub-install --target=i386-pc --recheck $DISK
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel,video,audio,network,storage -s /bin/bash "$U"

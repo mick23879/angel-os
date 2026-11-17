@@ -1,0 +1,90 @@
+#!/bin/bash
+# ============================================================
+#  Angel OS - Reparation du demarrage (vieux PC en Legacy/BIOS)
+#  Repasse le disque en table "MBR" (msdos) et reinstalle GRUB.
+#  Les donnees d'Angel OS ne sont PAS effacees : on ne touche
+#  qu'a la table de partition (l'etiquette) et au demarreur.
+# ============================================================
+set -u
+
+if [ "$(id -u)" != 0 ]; then
+  echo "Lance avec : sudo angel-fix-boot"
+  exit 1
+fi
+
+echo "   ============================================"
+echo "       Angel OS - Reparation du demarrage"
+echo "   ============================================"
+echo
+
+# 1) Trouver la partition racine d'Angel OS (label ROOT, en ext4)
+ROOTPART="$(blkid -L ROOT 2>/dev/null || true)"
+if [ -z "$ROOTPART" ]; then
+  echo " Partitions disponibles :"
+  lsblk -o NAME,SIZE,FSTYPE,LABEL | grep -iE 'ext4|NAME' || true
+  echo
+  read -rp " Ecris la partition racine d'Angel OS (ex: sda3) : " RP
+  ROOTPART="/dev/$RP"
+fi
+[ -b "$ROOTPART" ] || { echo " Partition introuvable : $ROOTPART"; exit 1; }
+
+PARTNAME="$(basename "$ROOTPART")"
+DISKNAME="$(lsblk -no PKNAME "$ROOTPART" | head -1)"
+DISK="/dev/$DISKNAME"
+START="$(cat "/sys/block/$DISKNAME/$PARTNAME/start" 2>/dev/null || echo "")"
+[ -n "$START" ] || { echo " Impossible de lire le debut de la partition. Stop."; exit 1; }
+
+echo
+echo " Racine d'Angel OS : $ROOTPART"
+echo " Disque            : $DISK"
+echo " Debut (secteur)   : $START"
+echo
+echo " On va recreer une table de demarrage SIMPLE (MBR) sur $DISK."
+echo " --> Tes fichiers Angel OS ne seront PAS effaces."
+echo
+read -rp " Pour confirmer, tape exactement OUI : " C
+[ "$C" = "OUI" ] || { echo " Annule. Rien n'a change."; exit 0; }
+
+# 2) Tout demonter proprement
+umount -R /mnt 2>/dev/null || true
+umount "$ROOTPART" 2>/dev/null || true
+swapoff -a 2>/dev/null || true
+
+# 3) Nouvelle table MBR : UNE seule partition (la racine) au MEME endroit, amorcable
+echo " -> Ecriture de la nouvelle table de demarrage..."
+printf 'label: dos\n%s,,83,*\n' "$START" | sfdisk --force "$DISK" >/dev/null
+partprobe "$DISK" 2>/dev/null || true
+sleep 2
+
+# La racine est maintenant la 1ere (et seule) partition
+if [[ "$DISKNAME" == nvme* || "$DISKNAME" == mmcblk* ]]; then
+  NEWROOT="${DISK}p1"
+else
+  NEWROOT="${DISK}1"
+fi
+[ -b "$NEWROOT" ] || { echo " Partition $NEWROOT absente apres l'operation. Stop."; exit 1; }
+
+# verification du systeme de fichiers (sans risque)
+e2fsck -fy "$NEWROOT" >/dev/null 2>&1 || true
+
+# 4) Monter et reinstaller GRUB en mode BIOS/Legacy
+echo " -> Reinstallation du demarreur (GRUB, mode Legacy)..."
+mount "$NEWROOT" /mnt || { echo " Montage impossible. Stop."; exit 1; }
+
+# enlever l'ancienne ligne /boot/efi du fstab (la partition EFI n'existe plus)
+if [ -f /mnt/etc/fstab ]; then
+  sed -i '/[[:space:]]\/boot\/efi[[:space:]]/d; /[[:space:]]\/boot\/efi$/d' /mnt/etc/fstab
+fi
+
+arch-chroot /mnt grub-install --target=i386-pc --recheck "$DISK"
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+# 5) Fini
+umount -R /mnt 2>/dev/null || true
+echo
+echo "   ============================================"
+echo "     C'est repare !"
+echo "     1) Retire la cle USB"
+echo "     2) Redemarre (tape : reboot)"
+echo "     Angel OS va s'ouvrir tout seul."
+echo "   ============================================"
