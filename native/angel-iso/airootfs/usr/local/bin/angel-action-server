@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# Pont d'actions : Elyane (dans le bureau web) demande une action -> on l'execute.
+# Ecoute UNIQUEMENT sur 127.0.0.1, liste d'actions fixe (securise).
+import http.server, subprocess, urllib.parse
+
+def sh(cmd):
+    subprocess.Popen(cmd, start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+def fermer_web():
+    sh(["pkill", "-f", "angel-web-profile"])
+
+# actions qui ouvrent une vraie appli -> on ferme le bureau web pour qu'elle soit visible
+APPS = {
+    "web":       ["firefox"],
+    "term":      ["foot"],
+    "files":     ["thunar"],
+    "wallpaper": ["angel-wall"],
+    "update":    ["foot", "-e", "bash", "-lc", "angel-update; echo; read -p '(Entree pour fermer) ' x"],
+}
+# actions systeme directes
+SYS = {
+    "poweroff": ["systemctl", "poweroff"],
+    "reboot":   ["systemctl", "reboot"],
+    "logout":   ["swaymsg", "exit"],
+}
+
+def faire(a):
+    if a in APPS:
+        sh(APPS[a]); fermer_web()
+    elif a in SYS:
+        sh(SYS[a])
+
+class H(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        try:
+            u = urllib.parse.urlparse(self.path)
+            if u.path == "/do":
+                q = urllib.parse.parse_qs(u.query)
+                faire((q.get("a") or [""])[0])
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+        except Exception:
+            try:
+                self.send_response(500); self.end_headers()
+            except Exception:
+                pass
+    def log_message(self, *a):
+        pass
+
+if __name__ == "__main__":
+    try:
+        http.server.HTTPServer(("127.0.0.1", 8777), H).serve_forever()
+    except OSError:
+        pass  # deja lance
