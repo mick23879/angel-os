@@ -1,0 +1,36 @@
+#!/bin/bash
+# Rend Elyane plus rapide : remplace son cerveau par un plus petit (qwen2.5:1.5b).
+# Usage : angel-elyane-rapide         -> cerveau 1.5B (equilibre, rapide)
+#         angel-elyane-rapide ultra   -> cerveau 0.5B (ultra rapide, qualite plus simple)
+set -u
+if ! command -v ollama >/dev/null 2>&1; then
+  echo "Elyane n'est pas installee. Lance d'abord : elyane-setup"; exit 1
+fi
+
+if [ "${1:-}" = "ultra" ]; then BASE="qwen2.5:0.5b"; else BASE="qwen2.5:1.5b"; fi
+
+echo "   ======================================"
+echo "     Elyane plus rapide  ($BASE)"
+echo "   ======================================"
+echo " Telechargement du nouveau cerveau (patiente)..."
+if ! ollama pull "$BASE"; then
+  echo " Telechargement impossible (Internet ?). Reessaie."; exit 1
+fi
+
+echo " Preparation d'Elyane..."
+MF="$(mktemp)"
+cat > "$MF" <<MODELFILE
+FROM $BASE
+PARAMETER temperature 0.7
+SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, joyeuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, en mots simples et clairs, et JAMAIS dans une autre langue. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu."""
+MODELFILE
+ollama rm elyane >/dev/null 2>&1
+ollama create elyane -f "$MF"
+rm -f "$MF"
+
+# liberer de l'espace : retirer les gros cerveaux qu'on n'utilise plus
+ollama rm qwen2.5:3b >/dev/null 2>&1 || true
+
+echo
+echo "   Fini ! Elyane est plus rapide."
+echo "   Reouvre Elyane dans le bureau web et teste."
