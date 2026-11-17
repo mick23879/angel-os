@@ -21,16 +21,15 @@ input "type:touchpad" {
     dwt enabled
 }
 
-# --- Demarrage automatique ---
-exec angel-folders
-exec_always angel-wall-apply
-exec_always angel-bar
-exec mako
-exec nm-applet --indicator
+# --- Demarrage automatique (MODE BUREAU WEB) ---
+# On ne lance PAS la barre/menu/notifs natifs : inutile sur le bureau web, ca economise les ressources.
+# Sway reste juste le socle (obligatoire) qui affiche le bureau web.
+exec_always angel-wall-apply   # fond d'ecran : securite si le bureau web n'est pas affiche (sinon ecran noir)
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec angel-autopower
-# Demarrer directement sur le bureau web (l'artefact). Le bureau natif reste dessous (Alt+F4 pour y revenir).
+exec angel-autopower           # gestion d'energie = economie de batterie
+# Le bureau web (ton artefact) en plein ecran = ce que tu vois
 exec angel-web
+# Maintenance au clavier si besoin : Alt+F4 ferme le web, Alt+Entree = terminal, Alt+D = menu
 
 # --- Raccourcis (Super ET Alt) ---
 bindsym $mod+Return exec foot
