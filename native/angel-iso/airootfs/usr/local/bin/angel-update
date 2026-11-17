@@ -56,9 +56,12 @@ cp -f "$OV/root/.config/mimeapps.list" "$HOME/.config/mimeapps.list" 2>/dev/null
 
 rm -rf "$TMP"
 
-# --- Appliquer tout de suite, sans redemarrer ---
-killall -SIGUSR2 waybar 2>/dev/null || true   # recharge l'apparence de la barre
-swaymsg reload           2>/dev/null || true   # recharge le bureau
+# --- Appliquer tout de suite, sans redemarrer la session ---
+swaymsg reload 2>/dev/null || true             # recharge le bureau (gaps, couleurs, raccourcis)
+# relance proprement la barre (prend en compte un changement de position/modules, pas juste la couleur)
+killall waybar 2>/dev/null || true
+sleep 1
+setsid waybar >/dev/null 2>&1 < /dev/null &    # detachee : survit a la fermeture du terminal
 
 echo
 echo "   Angel OS est a jour ! Le bureau vient de se rafraichir."
