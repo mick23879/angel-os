@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Bureau Angel OS (web)
+Comment=Afficher le bureau Angel OS façon artefact, en plein écran
+Exec=angel-web
+Icon=preferences-desktop-wallpaper
+Type=Application
+Categories=System;

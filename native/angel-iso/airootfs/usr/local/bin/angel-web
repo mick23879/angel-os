@@ -1,0 +1,11 @@
+#!/bin/bash
+# Bureau web d'Angel OS : affiche TON artefact en plein ecran (fonctionne hors ligne).
+# Pour quitter et revenir au bureau natif : Alt + F4 (ou ferme la fenetre).
+WEB="/usr/share/angel/web/index.html"
+if [ ! -f "$WEB" ]; then
+  echo "Le bureau web n'est pas encore installe."
+  echo "Fais d'abord : Mettre a jour Angel OS"
+  sleep 3
+  exit 1
+fi
+exec firefox --kiosk "file://$WEB"

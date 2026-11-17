@@ -6,6 +6,7 @@ MENU=""
 declare -A ACT
 ajoute() { MENU+="$1"$'\n'; ACT["$1"]="$2"; }
 
+ajoute "Bureau Angel OS (web)"       "angel-web"
 ajoute "Web (Firefox)"               "firefox"
 ajoute "Fichiers"                    "thunar"
 ajoute "Élyane (assistante)"         "foot -- elyane"

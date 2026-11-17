@@ -91,6 +91,9 @@ for_window [class=".*"] move position center
 #  - clic du milieu (3 doigts) sur la barre de titre -> FERMER la fenetre
 # (ne s'applique PAS a l'interieur des fenetres : le coller a 3 doigts marche toujours dans le terminal)
 bindsym button2 kill
+# Fermer la fenetre active au clavier, facon Windows
+bindsym $alt+F4 kill
+bindsym $mod+F4 kill
 
 # Couleurs des fenetres : barre de titre violet profond, bord lumineux (Angel)
 # client.<etat>        <bord>  <fond-titre> <texte>  <indicateur> <bord-enfant>

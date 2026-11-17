@@ -41,6 +41,9 @@ sudo chmod +x /usr/local/bin/angel-* /usr/local/bin/elyane*           2>/dev/nul
 sudo cp -f "$OV/usr/share/applications/"*.desktop /usr/share/applications/ 2>/dev/null || true
 sudo mkdir -p /usr/share/backgrounds/angel
 sudo cp -f "$OV/usr/share/backgrounds/angel/"*     /usr/share/backgrounds/angel/ 2>/dev/null || true
+# bureau web (l'artefact embarque, hors ligne)
+sudo mkdir -p /usr/share/angel/web
+sudo cp -f "$OV/usr/share/angel/web/"*             /usr/share/angel/web/ 2>/dev/null || true
 # reglages de reference (sert au 1er lancement du bureau)
 sudo mkdir -p /usr/share/angel/skel/.config
 sudo cp -a  "$OV/root/.config/."            /usr/share/angel/skel/.config/ 2>/dev/null || true
