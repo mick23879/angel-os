@@ -1,38 +1,37 @@
 {
   "layer": "top",
   "position": "bottom",
-  "height": 46,
+  "height": 44,
   "margin-bottom": 6,
   "margin-left": 12,
   "margin-right": 12,
   "spacing": 6,
   "modules-left": ["custom/angel"],
   "modules-center": ["custom/term", "custom/files", "custom/web", "custom/elyane"],
-  "modules-right": ["pulseaudio", "network", "battery", "clock", "tray"],
+  "modules-right": ["custom/close", "pulseaudio", "network", "battery", "clock", "tray"],
 
-  "custom/angel":  { "format": "   Démarrer", "tooltip": false, "on-click": "wofi --show drun" },
-  "custom/term":   { "format": "", "tooltip": false, "on-click": "foot" },
-  "custom/files":  { "format": "", "tooltip": false, "on-click": "thunar" },
-  "custom/web":    { "format": "", "tooltip": false, "on-click": "firefox" },
-  "custom/elyane": { "format": "", "tooltip": false, "on-click": "foot -- elyane" },
+  "custom/angel":  { "format": "Démarrer", "tooltip": false, "on-click": "wofi --show drun" },
+  "custom/term":   { "format": "Terminal", "tooltip": false, "on-click": "foot" },
+  "custom/files":  { "format": "Fichiers", "tooltip": false, "on-click": "thunar" },
+  "custom/web":    { "format": "Web",      "tooltip": false, "on-click": "firefox" },
+  "custom/elyane": { "format": "Élyane",   "tooltip": false, "on-click": "foot -- elyane" },
+  "custom/close":  { "format": "✕ Fermer", "tooltip": false, "on-click": "swaymsg kill" },
 
   "clock": { "format": "{:%H:%M  ·  %a %d %b}", "tooltip-format": "{:%A %d %B %Y}" },
   "battery": {
-    "format": "{icon}  {capacity}%",
-    "format-charging": "  {capacity}%",
-    "format-icons": ["", "", "", "", ""],
+    "format": "Batt {capacity}%",
+    "format-charging": "Charge {capacity}%",
     "states": { "warning": 20, "critical": 10 }
   },
   "network": {
-    "format-wifi": "  {essid}",
-    "format-ethernet": "  filaire",
-    "format-disconnected": "  hors ligne",
+    "format-wifi": "Wi-Fi : {essid}",
+    "format-ethernet": "Filaire",
+    "format-disconnected": "Hors ligne",
     "tooltip-format": "{ifname}: {ipaddr}"
   },
   "pulseaudio": {
-    "format": "{icon}  {volume}%",
-    "format-muted": "  muet",
-    "format-icons": { "default": ["", "", ""] },
+    "format": "Son {volume}%",
+    "format-muted": "Muet",
     "on-click": "pavucontrol"
   },
   "tray": { "spacing": 8 }

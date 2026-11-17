@@ -48,12 +48,10 @@ window#waybar {
 #pulseaudio{ color: #d9c2ff; padding: 0 12px; }
 #tray      { padding: 0 10px; }
 
-/* boutons d'applis au centre (barre des taches) */
-#custom-term, #custom-files, #custom-web, #custom-elyane {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  font-size: 17px;
+/* boutons d'applis au centre (barre des taches) - en texte, fiable */
+#custom-term, #custom-files, #custom-web, #custom-elyane, #custom-close {
   color: #d7d0ff;
+  font-weight: 600;
   padding: 0 14px;
   margin: 4px 2px;
   border-radius: 12px;
@@ -62,7 +60,9 @@ window#waybar {
   background: rgba(124, 58, 255, 0.28);
   color: #ffffff;
 }
-#custom-elyane { color: #ffcf8f; }  /* Elyane ressort en dore */
+#custom-elyane { color: #ffcf8f; }                 /* Elyane en dore */
+#custom-close  { color: #ffb4b4; }                 /* bouton Fermer en rouge doux */
+#custom-close:hover { background: rgba(248, 113, 113, 0.32); color: #ffffff; }
 
 /* espaces de travail : pastille active en degrade */
 #workspaces button {

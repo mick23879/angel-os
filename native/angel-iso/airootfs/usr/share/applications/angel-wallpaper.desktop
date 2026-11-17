@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Changer le fond d'écran
+Comment=Choisir une de tes images comme fond d'écran
+Exec=angel-wall
+Icon=preferences-desktop-wallpaper
+Type=Application
+Categories=Settings;Utility;

@@ -1,0 +1,33 @@
+#!/bin/bash
+# Changer le fond d'ecran (facon Windows) : choisis une image dans un menu.
+# Mets tes propres images dans le dossier "Images" (ou Pictures), elles apparaitront ici.
+mkdir -p "$HOME/.config/angel" "$HOME/Images"
+
+# chercher les images dans les dossiers habituels
+mapfile -t imgs < <(find \
+  "$HOME/Images" "$HOME/Pictures" "$HOME/.config/angel/fonds" "/usr/share/backgrounds/angel" \
+  -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) 2>/dev/null | sort)
+
+if [ "${#imgs[@]}" -eq 0 ]; then
+  printf 'Aucune image trouvee.\nMets tes photos dans le dossier "Images", puis reessaie.\n' \
+    | wofi --dmenu -p 'Fond d ecran' >/dev/null 2>&1
+  exit 0
+fi
+
+# afficher les noms (plus lisibles), retrouver le chemin ensuite
+declare -A MAP
+list=""
+for f in "${imgs[@]}"; do
+  n="$(basename "$f")"
+  MAP["$n"]="$f"
+  list+="$n"$'\n'
+done
+
+sel="$(printf '%s' "$list" | wofi --dmenu -p 'Choisis ton fond d ecran')"
+[ -n "$sel" ] || exit 0
+img="${MAP[$sel]}"
+[ -f "$img" ] || exit 0
+
+# memoriser le choix et l'appliquer tout de suite
+echo "$img" > "$HOME/.config/angel/wallpaper"
+angel-wall-apply

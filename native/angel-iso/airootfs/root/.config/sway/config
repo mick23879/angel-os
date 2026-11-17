@@ -6,8 +6,8 @@
 set $mod Mod4
 set $alt Mod1
 
-# Fond d'ecran Angel
-output * bg /usr/share/backgrounds/angel/angel.png fill
+# Fond d'ecran : gere par swaybg (lit le choix de l'utilisateur, voir "angel-wall-apply")
+# (l'utilisateur change son fond avec l'appli "Changer le fond d'ecran" = commande "angel-wall")
 
 # Clavier francais (AZERTY)
 input "type:keyboard" {
@@ -22,6 +22,7 @@ input "type:touchpad" {
 }
 
 # --- Demarrage automatique ---
+exec_always angel-wall-apply
 exec waybar
 exec mako
 exec nm-applet --indicator

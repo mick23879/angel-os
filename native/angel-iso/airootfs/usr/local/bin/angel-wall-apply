@@ -1,0 +1,8 @@
+#!/bin/bash
+# Applique le fond d'ecran choisi par l'utilisateur (ou celui d'Angel par defaut).
+W="$HOME/.config/angel/wallpaper"
+IMG="$(cat "$W" 2>/dev/null)"
+[ -f "$IMG" ] || IMG="/usr/share/backgrounds/angel/angel.png"
+pkill -x swaybg 2>/dev/null
+sleep 0.2
+swaybg -i "$IMG" -m fill >/dev/null 2>&1 &
