@@ -9898,7 +9898,7 @@ langueUI(prefs.ui||'fr');
     if(history.length>16) history=history.slice(-16);
     var th=add(msgs,'b','…'); var started=false; var full='';
     fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'elyane',messages:history,stream:true,keep_alive:'30m',options:{num_predict:220}})})
+      body:JSON.stringify({model:'elyane',messages:history,stream:true,keep_alive:'30m',options:{num_predict:130}})})
       .then(function(resp){
         if(!resp.body||!resp.body.getReader){ return resp.json().then(function(j){full=((j&&j.message&&j.message.content)||'').trim();th.textContent=full||"Je n'ai pas pu répondre, Michel.";}); }
         var reader=resp.body.getReader(), dec=new TextDecoder(), buf='';

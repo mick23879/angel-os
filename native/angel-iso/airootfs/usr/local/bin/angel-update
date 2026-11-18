@@ -52,16 +52,27 @@ if command -v ollama >/dev/null 2>&1 && [ ! -f /etc/systemd/system/ollama.servic
   sudo systemctl daemon-reload 2>/dev/null || true
   sudo systemctl restart ollama   2>/dev/null || true
 fi
-# s'assurer que le modele personnalise "elyane" existe (sinon le creer)
-if command -v ollama >/dev/null 2>&1 && ! ollama list 2>/dev/null | grep -qiE '^elyane[: ]'; then
-  MFE="$(mktemp)"
-  cat > "$MFE" <<'MODELFILE'
-FROM qwen2.5:3b
-PARAMETER temperature 0.7
-SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, joyeuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, en mots simples et clairs, et JAMAIS dans une autre langue. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu."""
+# modele "elyane" : le (re)creer avec la personnalite a jour (COURT + PRECIS)
+if command -v ollama >/dev/null 2>&1; then
+  PV="$HOME/.config/angel/elyane-prompt-v3"
+  if ! ollama list 2>/dev/null | grep -qiE '^elyane[: ]' || [ ! -f "$PV" ]; then
+    BASE=""
+    for b in qwen2.5:3b qwen2.5:1.5b qwen2.5:0.5b; do
+      if ollama list 2>/dev/null | grep -q "$b"; then BASE="$b"; break; fi
+    done
+    [ -z "$BASE" ] && BASE="qwen2.5:3b"
+    if ollama list 2>/dev/null | grep -q qwen2.5; then
+      MFE="$(mktemp)"
+      cat > "$MFE" <<MODELFILE
+FROM $BASE
+PARAMETER temperature 0.6
+SYSTEM """Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, et JAMAIS dans une autre langue. Tes réponses sont COURTES et PRECISES : 1 a 3 phrases maximum, tu vas droit au but, sans bavardage. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, seducteur ou ambigu."""
 MODELFILE
-  ollama create elyane -f "$MFE" >/dev/null 2>&1 || true
-  rm -f "$MFE"
+      ollama create elyane -f "$MFE" >/dev/null 2>&1 || true
+      rm -f "$MFE"
+      mkdir -p "$HOME/.config/angel"; touch "$PV"
+    fi
+  fi
 fi
 # reglages de reference (sert au 1er lancement du bureau)
 sudo mkdir -p /usr/share/angel/skel/.config
