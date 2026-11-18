@@ -23,6 +23,11 @@ SYS = {
     "poweroff": ["systemctl", "poweroff"],
     "reboot":   ["systemctl", "reboot"],
     "logout":   ["swaymsg", "exit"],
+    "mute":     ["pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle"],
+    "vol_up":   ["pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%"],
+    "vol_down": ["pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%"],
+    "wifi_on":  ["nmcli", "radio", "wifi", "on"],
+    "wifi_off": ["nmcli", "radio", "wifi", "off"],
 }
 
 def faire(a):
@@ -61,7 +66,14 @@ class H(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(body)
                 return
-            if u.path == "/do":
+            if u.path == "/vol":   # regler le volume (0-100) depuis le curseur du bureau web
+                q = urllib.parse.parse_qs(u.query)
+                try:
+                    v = max(0, min(100, int(float((q.get("v") or ["50"])[0]))))
+                except Exception:
+                    v = 50
+                sh(["pactl", "set-sink-volume", "@DEFAULT_SINK@", str(v) + "%"])
+            elif u.path == "/do":
                 q = urllib.parse.parse_qs(u.query)
                 faire((q.get("a") or [""])[0])
             self.send_response(204)

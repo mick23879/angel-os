@@ -9874,6 +9874,11 @@ langueUI(prefs.ui||'fr');
   function detecte(s){
     if(/\b(ouvre|reviens|retourne|affiche|remets|remet)\b.*(bureau web|artefact)/.test(s)) return 'webdesktop';
     if((/\b(ferme|quitte|cache|enleve)\b.*(bureau web|artefact|le web)/.test(s))||(/\b(retourne|reviens|va|passe)\b.*(natif|bureau natif)/.test(s))) return 'native';
+    if(/\b(coupe|mute|desactive|sourdine)\b.*(son|volume)/.test(s)||/\bmets? en sourdine\b/.test(s)) return 'mute';
+    if(/\b(monte|augmente|hausse)\b.*(son|volume)/.test(s)||/\b(son|volume)\b.*(plus fort)/.test(s)) return 'vol_up';
+    if(/\b(baisse|diminue|reduis)\b.*(son|volume)/.test(s)||/\b(son|volume)\b.*(moins fort)/.test(s)) return 'vol_down';
+    if(/\b(active|allume|remets?)\b.*(wifi|wi-fi)/.test(s)) return 'wifi_on';
+    if(/\b(desactive|coupe|eteins|enleve)\b.*(wifi|wi-fi)/.test(s)) return 'wifi_off';
     if(/\b(ouvre|lance|demarre|affiche|va sur)\b.*(navigateur|internet|firefox|google)/.test(s)) return 'web';
     if(/\b(ouvre|lance|demarre|affiche)\b.*(terminal|console|invite de commande)/.test(s)) return 'term';
     if(/\b(ouvre|lance|demarre|affiche|montre)\b.*(fichier|explorateur|dossier|document)/.test(s)) return 'files';
@@ -9884,7 +9889,7 @@ langueUI(prefs.ui||'fr');
     if(/\b(deconnexion|deconnecte|ferme la session|log ?out)\b/.test(s)) return 'logout';
     return null;
   }
-  var REP={web:"D'accord Michel, j'ouvre le navigateur ! 🌐",term:"J'ouvre le terminal, Michel. 🖥️",files:"Voici tes fichiers, Michel. 📁",wallpaper:"On change le fond d'écran ! 🖼️ Choisis ton image.",update:"Je lance la mise à jour d'Angel OS, Michel. 🔄",poweroff:"À bientôt Michel, j'éteins l'ordinateur… ⏻",reboot:"Je redémarre l'ordinateur, Michel. 🔄",logout:"Je ferme ta session, Michel. 👋",native:"D'accord Michel, je ferme le bureau web. 🖥️",webdesktop:"Je rouvre le bureau web, Michel. 🌸"};
+  var REP={web:"D'accord Michel, j'ouvre le navigateur ! 🌐",term:"J'ouvre le terminal, Michel. 🖥️",files:"Voici tes fichiers, Michel. 📁",wallpaper:"On change le fond d'écran ! 🖼️ Choisis ton image.",update:"Je lance la mise à jour d'Angel OS, Michel. 🔄",poweroff:"À bientôt Michel, j'éteins l'ordinateur… ⏻",reboot:"Je redémarre l'ordinateur, Michel. 🔄",logout:"Je ferme ta session, Michel. 👋",native:"D'accord Michel, je ferme le bureau web. 🖥️",webdesktop:"Je rouvre le bureau web, Michel. 🌸",mute:"C'est coupé. 🔇",vol_up:"Je monte le son. 🔊",vol_down:"Je baisse le son. 🔉",wifi_on:"J'active le Wi-Fi. 📶",wifi_off:"Je coupe le Wi-Fi. 📴"};
   function handle(inp){
     var text=(inp.value||'').trim(); if(!text) return;
     var chat=inp.closest('.chat'); var msgs=chat?chat.querySelector('.msgs'):document.querySelector('.msgs');
@@ -9950,6 +9955,8 @@ langueUI(prefs.ui||'fr');
   },true);
   try{ var mo=new MutationObserver(addMic); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
   function majBatt(){ fetch('http://127.0.0.1:8777/status').then(function(r){return r.json();}).then(function(j){ if(typeof appliqueBatterie==='function' && j && j.bat!=null){ try{ appliqueBatterie(j.bat, !!j.charge, ''); }catch(e){} } }).catch(function(){}); }
+  function wireVol(){ var v=document.getElementById('vol'); if(v && !v.dataset.angelV){ v.dataset.angelV='1'; v.addEventListener('input',function(){ try{ new Image().src='http://127.0.0.1:8777/vol?v='+encodeURIComponent(v.value)+'&t='+Date.now(); }catch(e){} }); } }
+  setInterval(wireVol, 1500); wireVol();
   setInterval(majBatt, 20000); setTimeout(majBatt, 1500);
   setInterval(addMic, 1500); addMic();
 })();

@@ -99,6 +99,10 @@ bindsym button2 kill
 # Fermer la fenetre active au clavier, facon Windows
 bindsym $alt+F4 kill
 bindsym $mod+F4 kill
+# touches physiques de volume (marchent meme sur le bureau web)
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute        exec pactl set-sink-mute   @DEFAULT_SINK@ toggle
 
 # Couleurs des fenetres : barre de titre violet profond, bord lumineux (Angel)
 # client.<etat>        <bord>  <fond-titre> <texte>  <indicateur> <bord-enfant>
