@@ -1,0 +1,41 @@
+#!/bin/bash
+# Installe la voix hors ligne d'Elyane (moteur Vosk + modele francais ~50 Mo).
+set -u
+echo "   ========================================"
+echo "     Installation de la voix d'Elyane"
+echo "   ========================================"
+echo " (petit telechargement, patiente...)"
+echo
+
+# 1) outils necessaires
+if ! sudo pacman -S --needed --noconfirm ffmpeg unzip curl python-pip; then
+  sudo pacman -Sy --needed --noconfirm ffmpeg unzip curl python-pip || {
+    echo " Installation des outils impossible. Verifie Internet."; exit 1; }
+fi
+
+# 2) moteur Vosk (reconnaissance vocale hors ligne)
+if ! python3 -c "import vosk" 2>/dev/null; then
+  echo " Installation du moteur vocal..."
+  pip install --break-system-packages vosk || {
+    echo " Installation du moteur impossible."; exit 1; }
+fi
+
+# 3) modele francais (petit)
+MDIR="$HOME/.local/share/angel-voix"
+mkdir -p "$MDIR"
+if [ ! -d "$MDIR/model" ]; then
+  echo " Telechargement du modele francais (~50 Mo)..."
+  if ! curl -L -o "$MDIR/m.zip" https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip; then
+    echo " Telechargement du modele impossible."; exit 1; fi
+  ( cd "$MDIR" && unzip -q m.zip && rm -f m.zip && mv vosk-model-small-fr-* model ) || {
+    echo " Decompression impossible."; exit 1; }
+fi
+
+# 4) (re)lancer le serveur vocal tout de suite
+pkill -f angel-voix-server 2>/dev/null
+setsid angel-voix-server >/dev/null 2>&1 < /dev/null &
+
+echo
+echo "   Voix installee ! "
+echo "   Rouvre le bureau web (poignee -> Bureau web),"
+echo "   clique le micro dans Elyane et parle."

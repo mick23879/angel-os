@@ -28,6 +28,7 @@ exec_always angel-wall-apply   # fond d'ecran : securite si le bureau web n'est 
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec angel-autopower           # gestion d'energie = economie de batterie
 exec_always angel-action-server  # pont : Elyane peut agir (ouvrir appli, eteindre, mettre a jour...)
+exec_always angel-voix-server    # voix hors ligne d'Elyane (si installee via angel-voix-setup)
 # poignee discrete du tiroir de controle (toujours visible, haut-droite) : clic = ouvre/ferme le panneau
 exec_always angel-control-handle
 # Le bureau web (ton artefact) en plein ecran = ce que tu vois

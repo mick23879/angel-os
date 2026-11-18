@@ -9866,14 +9866,15 @@ langueUI(prefs.ui||'fr');
 
 <style id="angel-os-overrides">.pleinbt{display:none!important}</style><script id="angel-elyane-hook">
 (function(){
-  var API='http://127.0.0.1:11434/api/generate';
+  var CHAT='http://127.0.0.1:11434/api/chat';
   var ACT='http://127.0.0.1:8777/do?a=';
+  var history=[];   // memoire de la conversation
   function add(msgs,cls,txt){var d=document.createElement('div');d.className='m '+cls;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
   function noaccents(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();}
   function detecte(s){
     if(/\b(ouvre|reviens|retourne|affiche|remets|remet)\b.*(bureau web|artefact)/.test(s)) return 'webdesktop';
     if((/\b(ferme|quitte|cache|enleve)\b.*(bureau web|artefact|le web)/.test(s))||(/\b(retourne|reviens|va|passe)\b.*(natif|bureau natif)/.test(s))) return 'native';
-    if(/\b(ouvre|lance|demarre|affiche|va sur)\b.*(navigateur|internet|firefox|web|google)/.test(s)) return 'web';
+    if(/\b(ouvre|lance|demarre|affiche|va sur)\b.*(navigateur|internet|firefox|google)/.test(s)) return 'web';
     if(/\b(ouvre|lance|demarre|affiche)\b.*(terminal|console|invite de commande)/.test(s)) return 'term';
     if(/\b(ouvre|lance|demarre|affiche|montre)\b.*(fichier|explorateur|dossier|document)/.test(s)) return 'files';
     if(/\b(change|changer|met|mets|nouveau|modifie)\b.*(fond|papier peint|ecran d.accueil|wallpaper)/.test(s)) return 'wallpaper';
@@ -9892,33 +9893,37 @@ langueUI(prefs.ui||'fr');
     add(msgs,'u',text);
     var a=detecte(noaccents(text));
     if(a){ add(msgs,'b',REP[a]||"D'accord, Michel."); try{ new Image().src=ACT+a+'&t='+Date.now(); }catch(e){} return; }
-    var th=add(msgs,'b','…'); var started=false;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'elyane',prompt:text,stream:true,keep_alive:'30m',options:{num_predict:200}})})
+    // conversation AVEC memoire
+    history.push({role:'user',content:text});
+    if(history.length>16) history=history.slice(-16);
+    var th=add(msgs,'b','…'); var started=false; var full='';
+    fetch(CHAT,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'elyane',messages:history,stream:true,keep_alive:'30m',options:{num_predict:220}})})
       .then(function(resp){
-        if(!resp.body||!resp.body.getReader){ return resp.json().then(function(j){th.textContent=((j&&j.response)||'').trim()||"Je n'ai pas pu répondre, Michel.";}); }
+        if(!resp.body||!resp.body.getReader){ return resp.json().then(function(j){full=((j&&j.message&&j.message.content)||'').trim();th.textContent=full||"Je n'ai pas pu répondre, Michel.";}); }
         var reader=resp.body.getReader(), dec=new TextDecoder(), buf='';
         function pump(){ return reader.read().then(function(res){
           if(res.done) return;
           buf+=dec.decode(res.value,{stream:true}); var lines=buf.split('\n'); buf=lines.pop();
           for(var i=0;i<lines.length;i++){ var ln=lines[i].trim(); if(!ln) continue;
-            try{var j=JSON.parse(ln); if(j.response){ if(!started){th.textContent='';started=true;} th.textContent+=j.response; msgs.scrollTop=msgs.scrollHeight; }}catch(e){} }
+            try{var j=JSON.parse(ln); var c=j.message&&j.message.content; if(c){ if(!started){th.textContent='';started=true;} full+=c; th.textContent=full; msgs.scrollTop=msgs.scrollHeight; }}catch(e){} }
           return pump(); }); }
         return pump();
       })
-      .catch(function(){th.textContent="Élyane hors ligne : ouvre un terminal et lance « elyane-setup », puis réessaie.";});
+      .then(function(){ if(full) history.push({role:'assistant',content:full}); })
+      .catch(function(){th.textContent="Élyane hors ligne : ouvre un terminal et lance « elyane-setup », puis réessaie.";history.pop();});
   }
-  // ----- Micro (reconnaissance vocale) -----
+  // ----- Micro (reconnaissance vocale du navigateur) -----
   function startVoice(cin){
     var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     var msgs=cin.closest('.chat')?cin.closest('.chat').querySelector('.msgs'):document.querySelector('.msgs');
     var mic=cin.querySelector('.angel-mic'); var inp=cin.querySelector('input');
-    if(!SR){ if(msgs) add(msgs,'b',"La reconnaissance vocale n'est pas disponible dans ce navigateur. Dis-moi « installe la voix » et je mets la voix hors ligne."); return; }
+    if(!SR){ if(msgs) add(msgs,'b',"La reconnaissance vocale n'est pas disponible dans ce navigateur. On peut installer la voix hors ligne (dis-le à Michel)."); return; }
     var rec; try{ rec=new SR(); }catch(e){ return; }
     rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
     if(mic) mic.textContent='…';
     rec.onresult=function(ev){ var t=ev.results[0][0].transcript; if(inp){ inp.value=t; handle(inp); } };
-    rec.onerror=function(){ if(msgs) add(msgs,'b',"Je n'ai pas bien entendu. (La voix marche mieux avec Internet ; sinon je peux installer la voix hors ligne.)"); };
+    rec.onerror=function(){ if(msgs) add(msgs,'b',"Je n'ai pas bien entendu, Michel."); };
     rec.onend=function(){ if(mic) mic.textContent='🎤'; };
     try{ rec.start(); }catch(e){}
   }
@@ -9933,7 +9938,6 @@ langueUI(prefs.ui||'fr');
       cin.appendChild(b);
     })(cins[i]); }
   }
-  // saisie clavier
   document.addEventListener('keydown',function(e){
     if(e.key!=='Enter'||e.shiftKey) return;
     var t=e.target; if(!t||!t.matches||!t.matches('.cin input')) return;
@@ -9944,7 +9948,6 @@ langueUI(prefs.ui||'fr');
     var inp=b.parentNode.querySelector('input'); if(!inp) return;
     e.preventDefault(); e.stopImmediatePropagation(); handle(inp);
   },true);
-  // ajoute le micro quand la chat apparait
   try{ var mo=new MutationObserver(addMic); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
   function majBatt(){ fetch('http://127.0.0.1:8777/status').then(function(r){return r.json();}).then(function(j){ if(typeof appliqueBatterie==='function' && j && j.bat!=null){ try{ appliqueBatterie(j.bat, !!j.charge, ''); }catch(e){} } }).catch(function(){}); }
   setInterval(majBatt, 20000); setTimeout(majBatt, 1500);
