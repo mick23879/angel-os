@@ -137,8 +137,132 @@ function ActionSysteme($t) {
     default        { return 'inconnue' }
   }
 }
+# --- v62.18 : un seul magasin, synchronise avec Windows (winget) ---
+$script:wgJobs = @{}
+$script:wgListe = $null
+$script:wgListeQuand = [datetime]::MinValue
+function WgExec($a, $maxMs) {
+  try {
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = 'winget'; $psi.Arguments = $a; $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true; $psi.CreateNoWindow = $true
+    $psi.StandardOutputEncoding = [Text.Encoding]::UTF8
+    $pr = [Diagnostics.Process]::Start($psi)
+    $tache = $pr.StandardOutput.ReadToEndAsync()
+    if (-not $pr.WaitForExit($maxMs)) { try { $pr.Kill() } catch {} ; return $null }
+    return $tache.Result
+  } catch { return $null }
+}
+function WgTable($txt) {
+  $res = New-Object System.Collections.ArrayList
+  if (-not $txt) { return $res }
+  $lignes = @($txt -split "`n" | ForEach-Object { $l = $_.TrimEnd("`r"); $k = $l.LastIndexOf("`r"); if ($k -ge 0) { $l = $l.Substring($k + 1) }; $l })
+  $i = -1
+  for ($n = 1; $n -lt $lignes.Count; $n++) { if ($lignes[$n] -match '^-{8,}\s*$') { $i = $n; break } }
+  if ($i -lt 1) { return $res }
+  $tete = $lignes[$i - 1]
+  $debuts = @(); for ($k = 0; $k -lt $tete.Length; $k++) { if ($tete[$k] -ne ' ' -and ($k -eq 0 -or $tete[$k - 1] -eq ' ')) { $debuts += $k } }
+  $noms = @(); foreach ($d in $debuts) { $f = $tete.IndexOf(' ', $d); if ($f -lt 0) { $f = $tete.Length }; $noms += $tete.Substring($d, $f - $d).ToLower() }
+  $cle = @{}
+  for ($c = 0; $c -lt $noms.Count; $c++) {
+    $t = $noms[$c]
+    if ($t -match '^(name|nom)') { $cle['nom'] = $c } elseif ($t -eq 'id') { $cle['id'] = $c } elseif ($t -match '^version') { $cle['version'] = $c }
+    elseif ($t -match '^(available|disponible)') { $cle['dispo'] = $c } elseif ($t -match '^source') { $cle['source'] = $c }
+  }
+  if (-not $cle.ContainsKey('id')) { return $res }
+  for ($n = $i + 1; $n -lt $lignes.Count; $n++) {
+    $l = $lignes[$n]; if (-not $l.Trim()) { continue }
+    $champs = @()
+    for ($c = 0; $c -lt $debuts.Count; $c++) {
+      $a = $debuts[$c]; $b = if ($c + 1 -lt $debuts.Count) { $debuts[$c + 1] } else { [Math]::Max($l.Length, $a) }
+      if ($a -ge $l.Length) { $champs += '' } else { $champs += $l.Substring($a, [Math]::Min($b, $l.Length) - $a).Trim() }
+    }
+    $id = $champs[$cle['id']]
+    if (-not $id -or $id -notmatch '^[A-Za-z0-9][A-Za-z0-9.\-_+]{1,120}$') { continue }
+    $o = [ordered]@{ nom = $champs[$cle['nom']]; id = $id; version = '' ; dispo = ''; source = '' }
+    if ($cle.ContainsKey('version')) { $o.version = $champs[$cle['version']] }
+    if ($cle.ContainsKey('dispo')) { $o.dispo = $champs[$cle['dispo']] }
+    if ($cle.ContainsKey('source')) { $o.source = $champs[$cle['source']] }
+    [void]$res.Add($o)
+  }
+  return $res
+}
+function WgCherche($q) {
+  $q = ($q -replace '[^\p{L}\p{N} .+\-_]', '').Trim()
+  if ($q.Length -lt 2) { return @() }
+  $t = WgExec ('search --query "' + $q + '" --accept-source-agreements --disable-interactivity') 60000
+  if ($null -eq $t) { return $null }
+  return @(WgTable $t | Select-Object -First 40)
+}
+function WgInstalles($frais) {
+  if (-not $frais -and $script:wgListe -and ((Get-Date) - $script:wgListeQuand).TotalSeconds -lt 90) { return $script:wgListe }
+  $t = WgExec 'list --accept-source-agreements --disable-interactivity' 90000
+  if ($null -eq $t) { return $null }
+  $script:wgListe = @(WgTable $t); $script:wgListeQuand = Get-Date
+  return $script:wgListe
+}
+function WgLancer($verbe, $id) {
+  if ($script:wgJobs.ContainsKey($id) -and -not $script:wgJobs[$id].p.HasExited) { return 'encours' }
+  $a = "$verbe --id $id -e --accept-source-agreements --disable-interactivity --silent"
+  if ($verbe -ne 'uninstall') { $a += ' --accept-package-agreements' }
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = 'winget'; $psi.Arguments = $a; $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+  $pr = [Diagnostics.Process]::Start($psi)
+  $script:wgJobs[$id] = @{ p = $pr; verbe = $verbe }
+  $script:wgListe = $null; $script:wApps = $null
+  return 'ok'
+}
+function WgEtats() {
+  $o = @{}
+  foreach ($k in @($script:wgJobs.Keys)) {
+    $j = $script:wgJobs[$k]
+    if ($j.p.HasExited) { $o[$k] = @{ etat = 'fini'; code = ('0x{0:X8}' -f $j.p.ExitCode); verbe = $j.verbe } }
+    else { $o[$k] = @{ etat = 'encours'; verbe = $j.verbe } }
+  }
+  return $o
+}
 $script:wApps = $null
 $script:wAppsQuand = [datetime]::MinValue
+# --- v62.19 : peripheriques reels (Windows previent le lanceur a chaque branchement) ---
+try {
+Add-Type -ReferencedAssemblies System.Management -TypeDefinition @'
+using System; using System.Management; using System.Threading;
+public static class AngelPeri {
+  public static int Rev = 0; static ManagementEventWatcher w;
+  public static void Demarrer() { try { w = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent")); w.EventArrived += (s, e) => { Interlocked.Increment(ref Rev); }; w.Start(); } catch { } }
+}
+'@
+[AngelPeri]::Demarrer()
+} catch {}
+$script:periCache = $null; $script:periRev = -1
+function ListePeri() {
+  $rev = 0; try { $rev = [AngelPeri]::Rev } catch {}
+  if ($script:periCache -and $script:periRev -eq $rev) { return $script:periCache }
+  $L = New-Object System.Collections.ArrayList; $vus = @{}
+  try {
+    foreach ($d in @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=2' -ErrorAction Stop)) {
+      $nom = if ($d.VolumeName) { $d.VolumeName } else { 'Cle USB' }
+      [void]$L.Add([ordered]@{ cle = 'w:vol:' + $d.DeviceID + ':' + $d.VolumeSerialNumber; cat = 'stockage'; nom = $nom + ' (' + $d.DeviceID + ')'; fab = ''; lettre = $d.DeviceID; usb = $true })
+    }
+  } catch {}
+  try {
+    $classes = @{ Mouse = 'hid'; Keyboard = 'hid'; HIDClass = 'manette'; Camera = 'camera'; Image = 'camera'; AudioEndpoint = 'sortie'; Printer = 'imprimante'; WPD = 'usb'; Bluetooth = 'sansfil'; Media = 'audio' }
+    foreach ($e in @(Get-CimInstance -ClassName Win32_PnPEntity -Filter 'Present=TRUE' -ErrorAction Stop)) {
+      $cl = [string]$e.PNPClass; $id = [string]$e.PNPDeviceID
+      if (-not $classes.ContainsKey($cl)) { continue }
+      if ($id -notmatch '^(USB|HID|BTHENUM|BTHLE|SWD\\MMDEVAPI|SWD\\WPDBUSENUM)') { continue }
+      if ($cl -eq 'HIDClass' -and $e.Name -notmatch 'game|manette|controller|xbox|joystick') { continue }
+      if ($cl -eq 'Bluetooth' -and $id -notmatch '^(BTHENUM|BTHLE)\\(Dev_|\{)') { continue }
+      $cat = $classes[$cl]; if ($cl -eq 'AudioEndpoint' -and $e.Name -match 'micro|mic') { $cat = 'micro' }
+      $k = ($cl + '|' + $e.Name).ToLower(); if ($vus.ContainsKey($k)) { continue }; $vus[$k] = 1
+      $vp = ''; if ($id -match 'VID_([0-9A-F]{4})&PID_([0-9A-F]{4})') { $vp = ($Matches[1] + ':' + $Matches[2]).ToLower() }
+      $fab = [string]$e.Manufacturer; if ($fab -match '^\(|standard|g.n.rique|generic|^microsoft$') { $fab = '' }
+      [void]$L.Add([ordered]@{ cle = 'w:' + $id; cat = $cat; nom = [string]$e.Name; fab = $fab; ids = $vp; usb = ($id -match '^(USB|HID|SWD\\WPDBUSENUM)') })
+    }
+  } catch {}
+  $script:periCache = @($L); $script:periRev = $rev
+  return $script:periCache
+}
 function IconeB64($chemin) {
   try {
     $i = [System.Drawing.Icon]::ExtractAssociatedIcon($chemin)
@@ -269,6 +393,38 @@ while ($l.IsListening) {
       $frais = ($req.Url.Query -match 'frais=1')
       $j = ConvertTo-Json -InputObject @{ ok = $true; applis = @(ListeApplis $frais) } -Depth 4 -Compress
       Json $rep 200 $j
+    }
+    elseif ($chemin -eq '/angel/store/cherche' -and $req.HttpMethod -eq 'GET') {
+      $L = WgCherche ([string]$req.QueryString['q'])
+      if ($null -eq $L) { Json $rep 200 '{"ok":false,"err":"winget"}' } else { Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; res = @($L) } -Depth 4 -Compress) }
+    }
+    elseif ($chemin -eq '/angel/store/installes' -and $req.HttpMethod -eq 'GET') {
+      $L = WgInstalles ($req.Url.Query -match 'frais=1')
+      if ($null -eq $L) { Json $rep 200 '{"ok":false,"err":"winget"}' } else { Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; res = @($L) } -Depth 4 -Compress) }
+    }
+    elseif ($chemin -eq '/angel/store/etat' -and $req.HttpMethod -eq 'GET') {
+      Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; jobs = (WgEtats) } -Depth 4 -Compress)
+    }
+    elseif ($chemin -eq '/angel/store/action' -and $req.HttpMethod -eq 'POST') {
+      if ($req.Headers['X-Angel'] -ne '1' -or ($req.Headers['Origin'] -and $req.Headers['Origin'] -ne $origine)) {
+        Json $rep 403 '{"ok":false,"err":"refuse"}'
+      } else {
+        $lecteur = New-Object System.IO.StreamReader($req.InputStream, $enc)
+        $t = $lecteur.ReadToEnd().Trim()
+        $lecteur.Close()
+        if ($t -match '^(install|uninstall|upgrade):([A-Za-z0-9][A-Za-z0-9.\-_+]{1,120})$') {
+          $r = 'erreur'; try { $r = WgLancer $Matches[1] $Matches[2] } catch { $r = 'erreur' }
+          if ($r -eq 'erreur') { Json $rep 500 '{"ok":false,"err":"winget"}' } else { Json $rep 200 ('{"ok":true,"etat":"' + $r + '"}') }
+        } else { Json $rep 400 '{"ok":false,"err":"inconnue"}' }
+      }
+    }
+    elseif ($chemin -eq '/angel/peri/rev') {
+      $rv = -1; try { $rv = [AngelPeri]::Rev } catch {}
+      Json $rep 200 ('{"ok":true,"rev":' + $rv + '}')
+    }
+    elseif ($chemin -eq '/angel/peri') {
+      $rv = -1; try { $rv = [AngelPeri]::Rev } catch {}
+      Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; rev = $rv; liste = @(ListePeri) } -Depth 4 -Compress)
     }
     elseif ($chemin -eq '/angel/sys' -and $req.HttpMethod -eq 'GET') {
       Json $rep 200 (EtatSysteme)

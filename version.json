@@ -1,6 +1,6 @@
 {
- "version": "62.17",
+ "version": "62.19",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Petit son quand tu regles le volume, comme Windows", "Son des notifications (4 sons au choix)", "Eteindre, redemarrer, veille, son et luminosite reels"]
+ "notes": ["Un seul magasin : Store Angel installe tes vrais logiciels (Microsoft Store compris)", "Les peripheriques branches sont signales", "Sons du volume et des notifications"]
 }
