@@ -209,6 +209,17 @@ function WgCherche($q) {
   if ($null -eq $t) { return $null }
   return @(WgTable $t | Select-Object -First 40)
 }
+function WgFiche($id) {
+  $t = WgExec ('show --id ' + $id + ' -e --accept-source-agreements --disable-interactivity') 60000
+  if ($null -eq $t) { return $null }
+  $o = [ordered]@{}; $cle = $null
+  foreach ($l in ($t -split "`n")) {
+    $l = $l.TrimEnd("`r"); $k = $l.LastIndexOf("`r"); if ($k -ge 0) { $l = $l.Substring($k + 1) }
+    if ($l -match '^([^\s:][^:]{0,40}):\s*(.*)$') { $cle = $Matches[1].Trim(); if (-not $o.Contains($cle)) { $o[$cle] = $Matches[2].Trim() } }
+    elseif ($cle -and $l -match '^\s+(\S.*)$') { $o[$cle] = ([string]$o[$cle] + ' ' + $Matches[1]).Trim() }
+  }
+  return $o
+}
 function WgInstalles($frais) {
   if (-not $frais -and $script:wgListe -and ((Get-Date) - $script:wgListeQuand).TotalSeconds -lt 90) { return $script:wgListe }
   $t = WgExec 'list --accept-source-agreements --disable-interactivity' 90000
@@ -427,6 +438,11 @@ while ($l.IsListening) {
     elseif ($chemin -eq '/angel/store/installes' -and $req.HttpMethod -eq 'GET') {
       $L = WgInstalles ($req.Url.Query -match 'frais=1')
       if ($null -eq $L) { Json $rep 200 '{"ok":false,"err":"winget"}' } else { Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; res = @($L) } -Depth 4 -Compress) }
+    }
+    elseif ($chemin -eq '/angel/store/fiche' -and $req.HttpMethod -eq 'GET') {
+      $fid = [string]$req.QueryString['id']
+      if ($fid -notmatch '^[A-Za-z0-9][A-Za-z0-9.\-_+]{1,120}$') { Json $rep 400 '{"ok":false}' }
+      else { $F = WgFiche $fid; if ($null -eq $F) { Json $rep 200 '{"ok":false,"err":"winget"}' } else { Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; fiche = $F } -Depth 3 -Compress) } }
     }
     elseif ($chemin -eq '/angel/store/etat' -and $req.HttpMethod -eq 'GET') {
       Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; jobs = (WgEtats) } -Depth 4 -Compress)

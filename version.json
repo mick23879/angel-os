@@ -1,6 +1,6 @@
 {
- "version": "62.20",
+ "version": "62.21",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Store Angel : boutons repares et aide pour activer le catalogue de Windows", "Detection des peripheriques renforcee", "Petit rapport de depannage pour Claude"]
+ "notes": ["Store facon Microsoft Store, en 3D : Accueil, Applications, Jeux, Bibliotheque", "Fiches avec description et bouton Obtenir", "Meme catalogue que le Microsoft Store, installe pour de vrai"]
 }
