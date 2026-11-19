@@ -9372,6 +9372,7 @@ try{const f=JSON.parse(localStorage.getItem('angel:ptfin')||'null');if(f){localS
 
 /* --- 3. Mises à jour (désinstaller la dernière) --- */
 var MAJS=[
+  {v:'62.24',nom:'Un seul écran de verrouillage',txt:'Angel OS se verrouille tout seul quand le PC sort de veille. Avec « 2 - Un seul écran de verrouillage », Windows ouvre ta session tout seul et seul l\'écran d\'Angel s\'affiche.',fixe:true},
   {v:'62.23',nom:'Store : copie du Microsoft Store',txt:'Store Angel reprend la présentation du Microsoft Store de ton PC : thème clair, nom à gauche, recherche au centre, rail Accueil / Applications / Jeux / Thèmes et en bas Téléchargements / Bibliothèque, grande carte avec des icônes en relief qui flottent, trois cartes à droite, panneaux « Jeux tendance » et « Applications tendance » avec flèches.',fixe:true},
   {v:'62.22',nom:'Store : allure Microsoft Store',txt:'Store Angel reprend l\'habillage du Microsoft Store : fond gris anthracite, rail à gauche avec Bibliothèque en bas, recherche centrée, grand bandeau, cartes en grille, bouton « Obtenir » bleu.',fixe:true},
   {v:'62.21',nom:'Store façon Microsoft Store, en 3D',txt:'Store Angel prend l\'allure du Microsoft Store, en relief : rail à gauche (Accueil, Applications, Jeux, Bibliothèque), bandeau « À la une », rangées d\'applis, fiches avec description et bouton « Obtenir ». Même catalogue que le Microsoft Store, installé pour de vrai.',fixe:true},
@@ -9512,7 +9513,7 @@ var _ev611=esaValider;esaValider=function(){const e=$('#esa [data-esaerr]');
   return _ev611()};
 
 /* ===== v62 : version locale et mises à jour (demande d'autorisation particulière) ===== */
-var ANGEL_BUILD='62.23';
+var ANGEL_BUILD='62.24';
 var ANGEL_LOCALE=location.protocol==='file:'||/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 (function(){const D={majVerif:'demarrage',majBouton:'auto',majPos:'basgauche',majSon:true,majPause:false,majGhUser:'mick23879',majGhDepot:'angel-os',majUrl:''};Object.keys(D).forEach(k=>{if(prefs[k]===undefined)prefs[k]=D[k]});if(!prefs.migGh62){prefs.migGh62=true;if(!prefs.majGhUser)prefs.majGhUser='mick23879';store.s('prefs',prefs)}})();
 function verNum(v){return String(v||'0').split('.').map(x=>parseInt(x,10)||0)}
@@ -10385,6 +10386,9 @@ function msPanneau(k){const P=MS_PAN[k],G=MS_CAT[P[1]].L,n=4,max=Math.max(0,Math
     +'<div class="ms-pan-g">'+L.map(x=>'<button class="ms-pi" data-msn="'+esc(x[0])+'">'+msTuile(x[0],x[1],64)+'<span><b>'+esc(x[0])+'</b><em class="ms-pill">'+esc(T(x[2]))+'</em></span></button>').join('')+'</div></section>'}
 function msPanneaux(){return '<div class="ms-pans">'+MS_PAN.map((p,k)=>msPanneau(k)).join('')+'</div>'}
 try{APPS.store.w=1120;APPS.store.h=690}catch(e){}
+/* ===== v62.24 : un seul écran de verrouillage — Angel OS se verrouille au réveil (Windows ne demande plus rien) ===== */
+(function(){let t0=Date.now();setInterval(()=>{const n=Date.now(),ecart=n-t0;t0=n;
+  if(ecart>45000&&prefs.verrouReveil!==false){const L=document.getElementById('lock');if(!(L&&!L.hidden))try{lockScreen()}catch(e){}}},5000)})();
 kbDessine();
 applyPrefs();renderNotes();fillIcons(document);
 tickClock();tickSim();

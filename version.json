@@ -1,6 +1,6 @@
 {
- "version": "62.23",
+ "version": "62.24",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Store Angel copie sur le Microsoft Store : theme clair, grande carte + 3 cartes, panneaux tendance", "Rail : Accueil, Applications, Jeux, Themes, Telechargements, Bibliotheque", "Icones en relief qui flottent"]
+ "notes": ["Angel OS se verrouille au reveil", "Store copie sur le Microsoft Store", "Un seul ecran de verrouillage (avec le fichier 2)"]
 }
