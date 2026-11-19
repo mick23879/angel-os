@@ -1,6 +1,6 @@
 {
- "version": "62.12",
+ "version": "62.13",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Elyane recoit un cerveau IA hors ligne", "A activer dans sa fenetre avec le bouton Activer mon cerveau", "Le cerveau se telecharge une fois puis marche hors ligne", "Les ordres habituels marchent toujours tout de suite", "Mieux dans la version locale (lanceur)"]
+ "notes": ["Cerveau d Elyane plus rapide", "Reponses plus courtes donc plus rapides", "Utilise la carte graphique quand c est possible", "Le cerveau se telecharge et marche dans la version locale ou un vrai navigateur"]
 }

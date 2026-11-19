@@ -9217,6 +9217,7 @@ try{const f=JSON.parse(localStorage.getItem('angel:ptfin')||'null');if(f){localS
 
 /* --- 3. Mises à jour (désinstaller la dernière) --- */
 var MAJS=[
+  {v:'62.13',nom:'Cerveau d\'Élyane plus rapide',txt:'Le cerveau IA d\'Élyane répond plus vite : réponses plus courtes, et il utilise la carte graphique quand le navigateur le permet. (Le cerveau se télécharge et fonctionne dans la version locale ou un vrai navigateur.)',fixe:true},
   {v:'62.12',nom:'Cerveau IA d\'Élyane',txt:'Élyane peut maintenant discuter pour de vrai : un petit cerveau IA tourne dans Angel OS. À activer dans sa fenêtre (bouton « Activer mon cerveau »). Il se télécharge une fois, puis marche hors ligne. (Mieux dans la version locale.)',fixe:true},
   {v:'62.11',nom:'Edge Next ouvre les sites',txt:'Tape une adresse et Edge Next essaie d\'afficher le vrai site. Si le site refuse, un bouton « Ouvrir dans un onglet » ouvre le vrai site. (Besoin d\'Internet : la version locale.)',fixe:true},
   {v:'62.10',nom:'Lecteur d\'images',txt:'Les Photos deviennent un vrai visualiseur : zoom, rotation, suivant/précédent, pellicule, diaporama et plein écran. Le choix du fond d\'écran reste.',fixe:true},
@@ -9346,7 +9347,7 @@ var _ev611=esaValider;esaValider=function(){const e=$('#esa [data-esaerr]');
   return _ev611()};
 
 /* ===== v62 : version locale et mises à jour (demande d'autorisation particulière) ===== */
-var ANGEL_BUILD='62.12';
+var ANGEL_BUILD='62.13';
 var ANGEL_LOCALE=location.protocol==='file:'||/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 (function(){const D={majVerif:'demarrage',majBouton:'auto',majPos:'basgauche',majSon:true,majPause:false,majGhUser:'mick23879',majGhDepot:'angel-os',majUrl:''};Object.keys(D).forEach(k=>{if(prefs[k]===undefined)prefs[k]=D[k]});if(!prefs.migGh62){prefs.migGh62=true;if(!prefs.majGhUser)prefs.majGhUser='mick23879';store.s('prefs',prefs)}})();
 function verNum(v){return String(v||'0').split('.').map(x=>parseInt(x,10)||0)}
@@ -9610,7 +9611,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
         this._TS = T.TextStreamer;
         const dev = (typeof navigator!=='undefined' && navigator.gpu) ? 'webgpu' : 'wasm';
         this.gen = await T.pipeline('text-generation', this.modele, {
-          dtype:'q4', device:dev,
+          dtype:(dev==='webgpu'?'q4f16':'q4'), device:dev,
           progress_callback:(p)=>{
             try{
               if(p && p.status==='progress'){
@@ -9640,7 +9641,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
         callback_function:(t)=>{ if(ontok) ontok(t); }
       });
       const out = await this.gen(messages, {
-        max_new_tokens:140, temperature:0.7, do_sample:true, repetition_penalty:1.1, streamer:streamer
+        max_new_tokens:90, temperature:0.6, do_sample:true, repetition_penalty:1.1, streamer:streamer
       });
       let txt='';
       try{ txt = out[0].generated_text.at(-1).content; }
