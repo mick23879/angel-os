@@ -140,16 +140,19 @@ function ListeApplis($frais) {
     try { $d = [Environment]::GetFolderPath($k); if ($d -and (Test-Path -LiteralPath $d)) { $lieux += $d } } catch {}
   }
   $exclus = 'uninstall|desinstall|d.sinstall|readme|lisez|license|licence|help|aide|documentation|website|site web|angel os|remettre windows'
+  $exclus += '|file explorer|explorateur|^ex.cuter$|^run$|command prompt|invite de commandes|powershell|registry|registre|recovery drive|lecteur de r.cup.ration'
+  $dossiersExclus = '\\(Administrative Tools|Windows Tools|Outils Windows|Outils d.administration|System Tools|Outils syst.me)\\'
   foreach ($d in $lieux) {
     foreach ($f in @(Get-ChildItem -LiteralPath $d -Recurse -Include *.lnk, *.url -ErrorAction SilentlyContinue)) {
       try {
         $nom = [IO.Path]::GetFileNameWithoutExtension($f.Name)
         if ($nom -match $exclus) { continue }
+        if ($f.FullName -match $dossiersExclus) { continue }
         $cle = $nom.ToLower()
         if ($vus.ContainsKey($cle)) { continue }
         $cible = ''
         if ($f.Extension -ieq '.lnk') { $cible = $sh.CreateShortcut($f.FullName).TargetPath }
-        if ($cible -match '\\explorer\.exe$') { continue }
+        if ($cible -match '\\explorer\.exe$' -or $cible -match '\\(cmd|powershell|pwsh|regedit|mmc)\.exe$') { continue }
         $vus[$cle] = 1
         [void]$L.Add([ordered]@{ id = 'L:' + $f.FullName; nom = $nom; type = 'lnk'; ico = (IconeB64 $f.FullName) })
       } catch {}
