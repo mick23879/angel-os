@@ -140,7 +140,7 @@ function ListeApplis($frais) {
     try { $d = [Environment]::GetFolderPath($k); if ($d -and (Test-Path -LiteralPath $d)) { $lieux += $d } } catch {}
   }
   $exclus = 'uninstall|desinstall|d.sinstall|readme|lisez|license|licence|help|aide|documentation|website|site web|angel os|remettre windows'
-  $exclus += '|file explorer|explorateur|^ex.cuter$|^run$|command prompt|invite de commandes|powershell|registry|registre|recovery drive|lecteur de r.cup.ration'
+  $exclus += '|file explorer|explorateur|^ex.cuter$|^run$|command prompt|invite de commandes|powershell|registry|registre|recovery drive|administrative tools|outils d.administration|windows tools|outils windows|lecteur de r.cup.ration'
   $dossiersExclus = '\\(Administrative Tools|Windows Tools|Outils Windows|Outils d.administration|System Tools|Outils syst.me)\\'
   foreach ($d in $lieux) {
     foreach ($f in @(Get-ChildItem -LiteralPath $d -Recurse -Include *.lnk, *.url -ErrorAction SilentlyContinue)) {
