@@ -1,6 +1,6 @@
 {
- "version": "62.19",
+ "version": "62.20",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Un seul magasin : Store Angel installe tes vrais logiciels (Microsoft Store compris)", "Les peripheriques branches sont signales", "Sons du volume et des notifications"]
+ "notes": ["Store Angel : boutons repares et aide pour activer le catalogue de Windows", "Detection des peripheriques renforcee", "Petit rapport de depannage pour Claude"]
 }

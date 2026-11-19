@@ -131,6 +131,7 @@ function ActionSysteme($t) {
     'redemarrer'   { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/r', '/t', '0' -WindowStyle Hidden; return 'ok' }
     'deconnexion'  { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/l' -WindowStyle Hidden; return 'ok' }
     'veille'       { Add-Type -AssemblyName System.Windows.Forms; [void][System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false); return 'ok' }
+    'appinstaller' { Start-Process 'ms-windows-store://pdp/?productid=9NBLGGH4NNS1'; $script:wgExe = $null; return 'ok' }
     'recuperation' { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/r', '/o', '/t', '0' -WindowStyle Hidden; return 'ok' }
     'volume'       { try { [AngelSon]::Mettre([int]$val); return 'ok' } catch { return 'erreur' } }
     'lumiere'      { if (MettreLumiere ([int]$val)) { return 'ok' } else { return 'erreur' } }
@@ -141,17 +142,31 @@ function ActionSysteme($t) {
 $script:wgJobs = @{}
 $script:wgListe = $null
 $script:wgListeQuand = [datetime]::MinValue
+$script:wgExe = $null
+function WgChemin() {
+  if ($script:wgExe) { return $script:wgExe }
+  $c = @()
+  try { $g = Get-Command winget -ErrorAction Stop; if ($g.Source) { $c += $g.Source } } catch {}
+  $c += (Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\winget.exe')
+  try { $pk = Get-AppxPackage -Name 'Microsoft.DesktopAppInstaller' -ErrorAction Stop | Sort-Object Version -Descending | Select-Object -First 1; if ($pk) { $script:diag.appInstaller = [string]$pk.Version; $c += (Join-Path $pk.InstallLocation 'winget.exe') } else { $script:diag.appInstaller = 'absent' } } catch { $script:diag.appInstaller = 'erreur' }
+  foreach ($x in $c) { if ($x -and (Test-Path -LiteralPath $x)) { $script:wgExe = $x; break } }
+  $script:diag.winget = if ($script:wgExe) { $script:wgExe } else { 'introuvable' }
+  return $script:wgExe
+}
 function WgExec($a, $maxMs) {
+  $exe = WgChemin
+  if (-not $exe) { $script:diag.wgErr = 'winget introuvable'; return $null }
   try {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = 'winget'; $psi.Arguments = $a; $psi.UseShellExecute = $false
+    $psi.FileName = $exe; $psi.Arguments = $a; $psi.UseShellExecute = $false
     $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true; $psi.CreateNoWindow = $true
     $psi.StandardOutputEncoding = [Text.Encoding]::UTF8
     $pr = [Diagnostics.Process]::Start($psi)
     $tache = $pr.StandardOutput.ReadToEndAsync()
-    if (-not $pr.WaitForExit($maxMs)) { try { $pr.Kill() } catch {} ; return $null }
+    if (-not $pr.WaitForExit($maxMs)) { try { $pr.Kill() } catch {} ; $script:diag.wgErr = 'trop long : ' + $a; return $null }
+    $script:diag.wgCode = ('0x{0:X8}' -f $pr.ExitCode)
     return $tache.Result
-  } catch { return $null }
+  } catch { $script:diag.wgErr = $_.Exception.Message; return $null }
 }
 function WgTable($txt) {
   $res = New-Object System.Collections.ArrayList
@@ -205,8 +220,9 @@ function WgLancer($verbe, $id) {
   if ($script:wgJobs.ContainsKey($id) -and -not $script:wgJobs[$id].p.HasExited) { return 'encours' }
   $a = "$verbe --id $id -e --accept-source-agreements --disable-interactivity --silent"
   if ($verbe -ne 'uninstall') { $a += ' --accept-package-agreements' }
+  $exe = WgChemin; if (-not $exe) { return 'erreur' }
   $psi = New-Object System.Diagnostics.ProcessStartInfo
-  $psi.FileName = 'winget'; $psi.Arguments = $a; $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+  $psi.FileName = $exe; $psi.Arguments = $a; $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
   $pr = [Diagnostics.Process]::Start($psi)
   $script:wgJobs[$id] = @{ p = $pr; verbe = $verbe }
   $script:wgListe = $null; $script:wApps = $null
@@ -224,8 +240,11 @@ function WgEtats() {
 $script:wApps = $null
 $script:wAppsQuand = [datetime]::MinValue
 # --- v62.19 : peripheriques reels (Windows previent le lanceur a chaque branchement) ---
+$script:diag = [ordered]@{ lanceur = '62.20'; demarre = (Get-Date).ToString('dd/MM HH:mm:ss') }
+$script:periEvt = 0
+try { Add-Type -AssemblyName System.Management } catch {}
 try {
-Add-Type -ReferencedAssemblies System.Management -TypeDefinition @'
+Add-Type -ReferencedAssemblies ([System.Management.ManagementEventWatcher].Assembly.Location) -TypeDefinition @'
 using System; using System.Management; using System.Threading;
 public static class AngelPeri {
   public static int Rev = 0; static ManagementEventWatcher w;
@@ -233,10 +252,17 @@ public static class AngelPeri {
 }
 '@
 [AngelPeri]::Demarrer()
-} catch {}
+$script:diag.periType = 'ok'
+} catch { $script:diag.periType = 'erreur : ' + $_.Exception.Message }
+try { Register-WmiEvent -Query 'SELECT * FROM Win32_DeviceChangeEvent' -SourceIdentifier 'AngelPeri' -ErrorAction Stop | Out-Null; $script:diag.periEvt = 'ok' } catch { $script:diag.periEvt = 'erreur : ' + $_.Exception.Message }
+function PeriRev() {
+  try { $ev = @(Get-Event -SourceIdentifier 'AngelPeri' -ErrorAction SilentlyContinue); if ($ev.Count) { $script:periEvt += $ev.Count; $ev | Remove-Event -ErrorAction SilentlyContinue } } catch {}
+  $r = $script:periEvt; try { $r += [AngelPeri]::Rev } catch {}
+  return $r
+}
 $script:periCache = $null; $script:periRev = -1
 function ListePeri() {
-  $rev = 0; try { $rev = [AngelPeri]::Rev } catch {}
+  $rev = PeriRev
   if ($script:periCache -and $script:periRev -eq $rev) { return $script:periCache }
   $L = New-Object System.Collections.ArrayList; $vus = @{}
   try {
@@ -418,13 +444,22 @@ while ($l.IsListening) {
         } else { Json $rep 400 '{"ok":false,"err":"inconnue"}' }
       }
     }
+    elseif ($chemin -eq '/angel/diag') {
+      [void](WgChemin)
+      $v = WgExec '--version' 20000; $script:diag.wgVersion = if ($v) { $v.Trim() } else { '' }
+      $script:diag.periRev = PeriRev
+      try { $script:diag.peri = @(ListePeri | ForEach-Object { $_.nom }) -join ' | ' } catch { $script:diag.peri = 'erreur' }
+      $script:diag.quand = (Get-Date).ToString('dd/MM HH:mm:ss')
+      $j = ConvertTo-Json -InputObject $script:diag -Depth 3
+      foreach ($dd in @((Join-Path $env:USERPROFILE 'Downloads\AngelOS-bureau'), $dir)) { try { if (Test-Path -LiteralPath $dd) { [IO.File]::WriteAllText((Join-Path $dd 'lanceur-diag.txt'), $j, $enc) } } catch {} }
+      Json $rep 200 (ConvertTo-Json -InputObject $script:diag -Depth 3 -Compress)
+    }
     elseif ($chemin -eq '/angel/peri/rev') {
-      $rv = -1; try { $rv = [AngelPeri]::Rev } catch {}
-      Json $rep 200 ('{"ok":true,"rev":' + $rv + '}')
+      Json $rep 200 ('{"ok":true,"rev":' + (PeriRev) + '}')
     }
     elseif ($chemin -eq '/angel/peri') {
-      $rv = -1; try { $rv = [AngelPeri]::Rev } catch {}
-      Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; rev = $rv; liste = @(ListePeri) } -Depth 4 -Compress)
+      $lp = @(ListePeri)
+      Json $rep 200 (ConvertTo-Json -InputObject @{ ok = $true; rev = $script:periRev; liste = $lp } -Depth 4 -Compress)
     }
     elseif ($chemin -eq '/angel/sys' -and $req.HttpMethod -eq 'GET') {
       Json $rep 200 (EtatSysteme)
@@ -437,7 +472,7 @@ while ($l.IsListening) {
         $t = $lecteur.ReadToEnd().Trim()
         $lecteur.Close()
         $r = 'erreur'
-        if ($t -match '^(eteindre|redemarrer|deconnexion|veille|recuperation|volume:\d{1,3}|lumiere:\d{1,3})$') {
+        if ($t -match '^(eteindre|redemarrer|deconnexion|veille|recuperation|appinstaller|volume:\d{1,3}|lumiere:\d{1,3})$') {
           $diff = ($t -match '^(eteindre|redemarrer|deconnexion|veille|recuperation)$')
           if ($diff) { Json $rep 200 '{"ok":true}'; Start-Sleep -Milliseconds 300; try { [void](ActionSysteme $t) } catch {} ; continue }
           try { $r = ActionSysteme $t } catch { $r = 'erreur' }
