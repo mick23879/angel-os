@@ -1,6 +1,6 @@
 {
- "version": "62.14",
+ "version": "62.15",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Nouvelle appli Applis Windows : ouvre les logiciels du PC (WhatsApp, Facebook, Word...)", "Elyane sait les ouvrir : ouvre WhatsApp", "Le lanceur doit redemarrer une fois (se deconnecter puis se reconnecter)"]
+ "notes": ["Logiciels Windows dans le menu Demarrer, icones en relief comme les applis Angel", "Epingler un logiciel Windows au menu ou a la barre des taches", "Seulement le necessaire : outils techniques et doublons masques"]
 }
