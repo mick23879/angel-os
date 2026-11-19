@@ -94,6 +94,49 @@ public static class AngelWin {
 }
 '@
 } catch {}
+# --- v62.16 : piloter le vrai Windows (alimentation, son, luminosite) ---
+try {
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices;
+[ComImport, Guid("5CDF2C82-841E-4546-9722-0CF74078229A"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAngelVol { int f(); int g(); int h(); int i(); int SetMasterVolumeLevelScalar(float l, Guid c); int j(); int GetMasterVolumeLevelScalar(out float l); int k(); int l(); int m(); int n(); int SetMute([MarshalAs(UnmanagedType.Bool)] bool b, Guid c); int GetMute(out bool b); }
+[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAngelDev { int Activate(ref Guid id, int ctx, IntPtr p, [MarshalAs(UnmanagedType.IUnknown)] out object o); }
+[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAngelEnum { int f(); int GetDefaultAudioEndpoint(int flow, int role, out IAngelDev d); }
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class AngelEnumCo {}
+public static class AngelSon {
+  static IAngelVol V() { var e = (IAngelEnum)(new AngelEnumCo()); IAngelDev d; Marshal.ThrowExceptionForHR(e.GetDefaultAudioEndpoint(0, 1, out d)); Guid g = typeof(IAngelVol).GUID; object o; Marshal.ThrowExceptionForHR(d.Activate(ref g, 23, IntPtr.Zero, out o)); return (IAngelVol)o; }
+  public static int Lire() { float v; Marshal.ThrowExceptionForHR(V().GetMasterVolumeLevelScalar(out v)); return (int)Math.Round(v * 100); }
+  public static void Mettre(int p) { var v = V(); Marshal.ThrowExceptionForHR(v.SetMasterVolumeLevelScalar(Math.Max(0, Math.Min(100, p)) / 100f, Guid.Empty)); v.SetMute(p == 0, Guid.Empty); }
+  public static bool Muet() { bool b; V().GetMute(out b); return b; }
+}
+'@
+} catch {}
+function LireLumiere() {
+  try { $b = Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness -ErrorAction Stop | Select-Object -First 1; return [int]$b.CurrentBrightness } catch { return -1 }
+}
+function MettreLumiere($p) {
+  try { $m = Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods -ErrorAction Stop | Select-Object -First 1; Invoke-CimMethod -InputObject $m -MethodName WmiSetBrightness -Arguments @{ Timeout = [uint32]1; Brightness = [byte]$p } | Out-Null; return $true } catch { return $false }
+}
+function EtatSysteme() {
+  $v = -1; $mu = $false
+  try { $v = [AngelSon]::Lire(); $mu = [AngelSon]::Muet() } catch {}
+  return (ConvertTo-Json -InputObject @{ ok = $true; volume = $v; muet = $mu; lumiere = (LireLumiere) } -Compress)
+}
+function ActionSysteme($t) {
+  $a, $val = $t -split ':', 2
+  switch ($a) {
+    'eteindre'     { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/s', '/t', '0' -WindowStyle Hidden; return 'ok' }
+    'redemarrer'   { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/r', '/t', '0' -WindowStyle Hidden; return 'ok' }
+    'deconnexion'  { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/l' -WindowStyle Hidden; return 'ok' }
+    'veille'       { Add-Type -AssemblyName System.Windows.Forms; [void][System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false); return 'ok' }
+    'recuperation' { Start-Process -FilePath 'shutdown.exe' -ArgumentList '/r', '/o', '/t', '0' -WindowStyle Hidden; return 'ok' }
+    'volume'       { try { [AngelSon]::Mettre([int]$val); return 'ok' } catch { return 'erreur' } }
+    'lumiere'      { if (MettreLumiere ([int]$val)) { return 'ok' } else { return 'erreur' } }
+    default        { return 'inconnue' }
+  }
+}
 $script:wApps = $null
 $script:wAppsQuand = [datetime]::MinValue
 function IconeB64($chemin) {
@@ -226,6 +269,27 @@ while ($l.IsListening) {
       $frais = ($req.Url.Query -match 'frais=1')
       $j = ConvertTo-Json -InputObject @{ ok = $true; applis = @(ListeApplis $frais) } -Depth 4 -Compress
       Json $rep 200 $j
+    }
+    elseif ($chemin -eq '/angel/sys' -and $req.HttpMethod -eq 'GET') {
+      Json $rep 200 (EtatSysteme)
+    }
+    elseif ($chemin -eq '/angel/sys' -and $req.HttpMethod -eq 'POST') {
+      if ($req.Headers['X-Angel'] -ne '1' -or ($req.Headers['Origin'] -and $req.Headers['Origin'] -ne $origine)) {
+        Json $rep 403 '{"ok":false,"err":"refuse"}'
+      } else {
+        $lecteur = New-Object System.IO.StreamReader($req.InputStream, $enc)
+        $t = $lecteur.ReadToEnd().Trim()
+        $lecteur.Close()
+        $r = 'erreur'
+        if ($t -match '^(eteindre|redemarrer|deconnexion|veille|recuperation|volume:\d{1,3}|lumiere:\d{1,3})$') {
+          $diff = ($t -match '^(eteindre|redemarrer|deconnexion|veille|recuperation)$')
+          if ($diff) { Json $rep 200 '{"ok":true}'; Start-Sleep -Milliseconds 300; try { [void](ActionSysteme $t) } catch {} ; continue }
+          try { $r = ActionSysteme $t } catch { $r = 'erreur' }
+        } else { $r = 'inconnue' }
+        if ($r -eq 'ok') { Json $rep 200 '{"ok":true}' }
+        elseif ($r -eq 'inconnue') { Json $rep 400 '{"ok":false,"err":"inconnue"}' }
+        else { Json $rep 500 '{"ok":false,"err":"echec"}' }
+      }
     }
     elseif ($chemin -eq '/angel/lancer' -and $req.HttpMethod -eq 'POST') {
       if ($req.Headers['X-Angel'] -ne '1' -or ($req.Headers['Origin'] -and $req.Headers['Origin'] -ne $origine)) {

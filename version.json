@@ -1,6 +1,6 @@
 {
- "version": "62.15",
+ "version": "62.16",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Logiciels Windows dans le menu Demarrer, icones en relief comme les applis Angel", "Epingler un logiciel Windows au menu ou a la barre des taches", "Seulement le necessaire : outils techniques et doublons masques"]
+ "notes": ["Eteindre, redemarrer, veille et deconnexion pour de vrai", "Le son et la luminosite reglent le vrai Windows", "Logiciels Windows dans le menu Demarrer"]
 }
