@@ -2643,6 +2643,37 @@ body.mob .wa-act,.wa-it:active .wa-act{opacity:1}
 .ms-note{font-size:11.5px;opacity:.55;margin:14px 2px 0}
 body.noanim .ms-card,body.noanim .ms-hero{transition:none;transform:none}
 @media (max-width:620px){.ms3{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.ms-rail{flex-direction:row;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto;padding:6px}.ms-rail button{flex:1 0 64px}.ms-rail button.on{box-shadow:inset 0 -3px 0 var(--accent)}.ms-hero{min-height:150px;padding:18px}.ms-hero-i{display:none}.ms-li{flex-wrap:wrap}.ms-li .sw-bt{width:100%;justify-content:flex-end}}
+/* v62.22 Store : habillage façon Microsoft Store (Fluent, gris anthracite, accent bleu) */
+.w-store .wbody{background:#202020}
+.ms3{--msbg:#202020;--mscard:#2b2b2b;--mscard2:#323232;--msline:rgba(255,255,255,.07);--msacc:#4cc2ff;--mstxt:#fff;--msmute:rgba(255,255,255,.62);background:var(--msbg);color:var(--mstxt);font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif}
+.ms3 .ms-rail{width:76px;background:#1c1c1c;border-right:1px solid var(--msline);padding:8px 4px;gap:2px}
+.ms3 .ms-rail button{position:relative;font-size:10px;opacity:1;color:var(--msmute);border-radius:6px;padding:10px 2px 8px}
+.ms3 .ms-rail button svg{color:var(--mstxt)}
+.ms3 .ms-rail button:hover{background:rgba(255,255,255,.05)}
+.ms3 .ms-rail button.on{background:rgba(255,255,255,.06);color:var(--mstxt);box-shadow:none}
+.ms3 .ms-rail button.on::before{content:"";position:absolute;left:0;top:50%;width:3px;height:18px;margin-top:-9px;border-radius:2px;background:var(--msacc)}
+.ms3 .ms-rail button[data-msp="biblio"]{margin-top:auto}
+.ms3 .ms-top{display:flex;justify-content:center;padding:10px 20px;border-bottom:1px solid var(--msline);background:#1c1c1c}
+.ms3 .ms-s{width:min(560px,100%);height:34px;border-radius:6px;background:#2d2d2d;border:1px solid var(--msline);border-bottom:1px solid rgba(255,255,255,.25);color:var(--msmute)}
+.ms3 .ms-body{padding:16px 24px 24px}
+.ms3 .ms-hero{min-height:260px;border-radius:8px;padding:34px 40px;transform:none;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.ms3 .ms-hero-t h2{font-size:36px;font-weight:600}.ms3 .ms-hero .btn{background:var(--msacc);color:#000;border-radius:4px;padding:8px 22px;font-weight:600}
+.ms3 .ms-h{margin:24px 2px 10px}.ms3 .ms-h b{font-size:18px;font-weight:600}.ms3 .ms-chev{color:var(--msmute);font-weight:400;margin-left:2px}
+.ms3 .ms-row{display:grid;grid-auto-flow:row;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));overflow:visible;gap:8px;padding:0}
+.ms3 .ms-card{flex-direction:column;align-items:flex-start;text-align:left;gap:12px;padding:16px;border-radius:8px;border:1px solid var(--msline);background:var(--mscard);box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.ms3 .ms-card:hover{background:var(--mscard2);transform:translateY(calc(-3px*var(--d,1)));box-shadow:0 8px 16px rgba(0,0,0,.35)}
+.ms3 .ms-ct{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}.ms3 .ms-card b{font-size:14px}.ms3 .ms-card small{color:var(--msmute);opacity:1}
+.ms3 .ms-li{background:var(--mscard);border:1px solid var(--msline);border-radius:8px}
+.ms3 .ms-back{background:var(--mscard);border:1px solid var(--msline);border-radius:6px}
+.ms3 .ms-fiche{background:var(--mscard);border:1px solid var(--msline);border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.ms3 .ms-fh h2{font-size:28px;font-weight:600}.ms3 .ms-ed{color:var(--msacc);opacity:1}
+.ms3 .btn{border-radius:4px;background:#2d2d2d;border:1px solid var(--msline);color:var(--mstxt)}
+.ms3 .btn.pri{background:var(--msacc);color:#000;border-color:transparent;font-weight:600}
+.ms3 .ms-fb .btn.pri{min-width:200px;padding:9px 20px}
+.ms3 .ms-info div{background:#262626;border:1px solid var(--msline);border-radius:6px}
+.ms3 .ms-sub{color:var(--msmute)}.ms3 .sw-ok{color:#6ccb5f}
+.ms3 .search input::placeholder{color:var(--msmute)}
+@media (max-width:620px){.ms3 .ms-rail{width:auto}.ms3 .ms-rail button[data-msp="biblio"]{margin-top:0}.ms3 .ms-rail button.on::before{left:50%;top:auto;bottom:0;width:18px;height:3px;margin:0 0 0 -9px}.ms3 .ms-body{padding:12px}.ms3 .ms-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ms3 .ms-hero{min-height:170px;padding:22px}}
 /* ===== Énergie ===== */
 /* ===== Batterie en 3D ===== */
 .batw.tb3{--n:82;position:relative;display:inline-block;width:24px;height:12px;border-radius:3.5px;margin-right:3px;
@@ -9290,6 +9321,7 @@ try{const f=JSON.parse(localStorage.getItem('angel:ptfin')||'null');if(f){localS
 
 /* --- 3. Mises à jour (désinstaller la dernière) --- */
 var MAJS=[
+  {v:'62.22',nom:'Store : allure Microsoft Store',txt:'Store Angel reprend l\'habillage du Microsoft Store : fond gris anthracite, rail à gauche avec Bibliothèque en bas, recherche centrée, grand bandeau, cartes en grille, bouton « Obtenir » bleu.',fixe:true},
   {v:'62.21',nom:'Store façon Microsoft Store, en 3D',txt:'Store Angel prend l\'allure du Microsoft Store, en relief : rail à gauche (Accueil, Applications, Jeux, Bibliothèque), bandeau « À la une », rangées d\'applis, fiches avec description et bouton « Obtenir ». Même catalogue que le Microsoft Store, installé pour de vrai.',fixe:true},
   {v:'62.20',nom:'Store Angel et périphériques : corrections',txt:'Si le catalogue de Windows n\'est pas encore activé, Store Angel te guide (bouton « Activer »). La détection des périphériques est renforcée. Onglets du Store réparés.',fixe:true},
   {v:'62.19',nom:'Périphériques réels',txt:'Quand tu branches ou débranches une clé USB, une souris, un casque, une manette ou un téléphone, Windows prévient Angel OS, qui te le signale aussitôt. La liste de Paramètres › Périphériques montre les vrais appareils.',fixe:true},
@@ -9428,7 +9460,7 @@ var _ev611=esaValider;esaValider=function(){const e=$('#esa [data-esaerr]');
   return _ev611()};
 
 /* ===== v62 : version locale et mises à jour (demande d'autorisation particulière) ===== */
-var ANGEL_BUILD='62.21';
+var ANGEL_BUILD='62.22';
 var ANGEL_LOCALE=location.protocol==='file:'||/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 (function(){const D={majVerif:'demarrage',majBouton:'auto',majPos:'basgauche',majSon:true,majPause:false,majGhUser:'mick23879',majGhDepot:'angel-os',majUrl:''};Object.keys(D).forEach(k=>{if(prefs[k]===undefined)prefs[k]=D[k]});if(!prefs.migGh62){prefs.migGh62=true;if(!prefs.majGhUser)prefs.majGhUser='mick23879';store.s('prefs',prefs)}})();
 function verNum(v){return String(v||'0').split('.').map(x=>parseInt(x,10)||0)}
@@ -10201,7 +10233,7 @@ function buildStore3D(body){
   if(!winOk()&&!sysOk())return _bS6218(body);
   let page=prefs.msPage||'accueil',fiche=null,tq0=0,hero=0,tHero=0;
   body.innerHTML='<div class="ms3"><nav class="ms-rail">'
-    +[['accueil','home',T('Accueil')],['app','widgets',T('Applications')],['jeu','pad',T('Jeux')],['biblio','lst',T('Bibliothèque')],['angel','store',T('Applis Angel')]].map(x=>'<button data-msp="'+x[0]+'">'+ic(x[1],20)+'<span>'+x[2]+'</span></button>').join('')
+    +[['accueil','home',T('Accueil')],['app','widgets',T('Applications')],['jeu','pad',T('Jeux')],['angel','store',T('Applis Angel')],['biblio','lst',T('Bibliothèque')]].map(x=>'<button data-msp="'+x[0]+'">'+ic(x[1],20)+'<span>'+x[2]+'</span></button>').join('')
     +'</nav><div class="ms-main"><div class="ms-top"><label class="search ms-s"><span>'+ic('search',17)+'</span><input class="ms-q" type="search" placeholder="'+T('Rechercher des applications et des jeux')+'" autocomplete="off"></label></div><div class="ms-body fondu"></div><div class="ms-angel" hidden></div></div></div>';
   const corps=$('.ms-body',body),ang=$('.ms-angel',body),inp=$('.ms-q',body);
   const bouton=a=>{const inst=wgEst(a.id),job=WG.jobs[a.id];
@@ -10209,8 +10241,8 @@ function buildStore3D(body){
     if(inst&&inst.dispo)return '<button class="btn pri" data-msa="upgrade">'+T('Mettre à jour')+'</button>';
     if(inst)return '<span class="sw-ok">'+ic('check',14)+' '+T('Installé')+'</span><button class="btn" data-msa="lancer">'+T('Ouvrir')+'</button>';
     return '<button class="btn pri" data-msa="install">'+T('Obtenir')+'</button>'};
-  const carte=(n,c,cat)=>'<button class="ms-card" data-msn="'+esc(n)+'">'+msTuile(n,c,64)+'<b>'+esc(n)+'</b><small>'+esc(T(cat||''))+'</small></button>';
-  const rangee=g=>'<section class="ms-sec"><div class="ms-h"><b>'+T(g.t)+'</b></div><div class="ms-row">'+g.L.map(x=>carte(x[0],x[1],x[2])).join('')+'</div></section>';
+  const carte=(n,c,cat)=>'<button class="ms-card" data-msn="'+esc(n)+'">'+msTuile(n,c,56)+'<span class="ms-ct"><b>'+esc(n)+'</b><small>'+esc(T(cat||''))+'</small></span></button>';
+  const rangee=g=>'<section class="ms-sec"><div class="ms-h"><b>'+T(g.t)+' <span class="ms-chev">›</span></b></div><div class="ms-row">'+g.L.map(x=>carte(x[0],x[1],x[2])).join('')+'</div></section>';
   function msg(icn,t,x){return '<div class="soon"><span style="color:var(--accent)">'+ic(icn,40)+'</span><h3>'+t+'</h3><p>'+x+'</p></div>'}
   function erreur(){if(WG.err==='ancien')return msg('refresh',T('Le lanceur doit redémarrer'),T('Déconnecte-toi puis reconnecte-toi : ensuite le Store Angel pourra installer tes logiciels.'));
     if(WG.err==='winget')return msg('store',T('Catalogue de Windows à activer'),T('Sur un Windows neuf, l\'outil d\'installation (« Programme d\'installation d\'application ») doit d\'abord être mis à jour. Touche « Activer » : le Microsoft Store s\'ouvre sur la bonne page, clique « Mettre à jour » (ou « Obtenir »), puis reviens ici et touche « Réessayer ». Il faut Internet.'))+'<div class="sw-act"><button class="btn pri" data-swact>'+T('Activer')+'</button><button class="btn" data-swre>'+T('Réessayer')+'</button></div>';return ''}

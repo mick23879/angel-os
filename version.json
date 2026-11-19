@@ -1,6 +1,6 @@
 {
- "version": "62.21",
+ "version": "62.22",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Store facon Microsoft Store, en 3D : Accueil, Applications, Jeux, Bibliotheque", "Fiches avec description et bouton Obtenir", "Meme catalogue que le Microsoft Store, installe pour de vrai"]
+ "notes": ["Store : allure du Microsoft Store (gris anthracite, rail, recherche centree, cartes en grille)", "Bouton Obtenir bleu, editeur en lien bleu", "Bibliotheque en bas du rail"]
 }
