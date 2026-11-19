@@ -1,6 +1,6 @@
 {
- "version": "62.13",
+ "version": "62.14",
  "date": "19 nov. 2026",
  "fichier": "angel-os.html",
- "notes": ["Cerveau d Elyane plus rapide", "Reponses plus courtes donc plus rapides", "Utilise la carte graphique quand c est possible", "Le cerveau se telecharge et marche dans la version locale ou un vrai navigateur"]
+ "notes": ["Nouvelle appli Applis Windows : ouvre les logiciels du PC (WhatsApp, Facebook, Word...)", "Elyane sait les ouvrir : ouvre WhatsApp", "Le lanceur doit redemarrer une fois (se deconnecter puis se reconnecter)"]
 }
