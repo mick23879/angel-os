@@ -2562,6 +2562,14 @@ body.noanim .ivimg{transition:none}
 .egmsg{margin:auto;max-width:360px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--mute);padding:24px}
 .egmsg h2{font-size:17px;color:var(--text);margin:0}
 .egmsg p{font-size:13px;line-height:1.5;margin:0}
+/* ===== v62.12 : Cerveau IA d'Elyane ===== */
+.iabar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px;flex-wrap:wrap}
+.iabar .cia{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:16px;background:var(--tint2);font-size:12.5px;font-weight:500}
+.iabar .cia.on{background:var(--ok);color:#fff}
+.iabar button.cia:hover{background:var(--accent);color:var(--accent-on)}
+.iaprog{flex:1;min-width:70px;height:6px;border-radius:3px;background:var(--tint2);overflow:hidden}
+.iaprog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.m.b.pense{opacity:.65;font-style:italic}
 /* ===== Énergie ===== */
 /* ===== Batterie en 3D ===== */
 .batw.tb3{--n:82;position:relative;display:inline-block;width:24px;height:12px;border-radius:3.5px;margin-right:3px;
@@ -9209,6 +9217,7 @@ try{const f=JSON.parse(localStorage.getItem('angel:ptfin')||'null');if(f){localS
 
 /* --- 3. Mises à jour (désinstaller la dernière) --- */
 var MAJS=[
+  {v:'62.12',nom:'Cerveau IA d\'Élyane',txt:'Élyane peut maintenant discuter pour de vrai : un petit cerveau IA tourne dans Angel OS. À activer dans sa fenêtre (bouton « Activer mon cerveau »). Il se télécharge une fois, puis marche hors ligne. (Mieux dans la version locale.)',fixe:true},
   {v:'62.11',nom:'Edge Next ouvre les sites',txt:'Tape une adresse et Edge Next essaie d\'afficher le vrai site. Si le site refuse, un bouton « Ouvrir dans un onglet » ouvre le vrai site. (Besoin d\'Internet : la version locale.)',fixe:true},
   {v:'62.10',nom:'Lecteur d\'images',txt:'Les Photos deviennent un vrai visualiseur : zoom, rotation, suivant/précédent, pellicule, diaporama et plein écran. Le choix du fond d\'écran reste.',fixe:true},
   {v:'62.9',nom:'Lecteurs vidéo et musique revus',txt:'Le lecteur vidéo a l\'allure de YouTube (barre rouge, commandes qui se cachent, réglages). Le lecteur de musique joue vraiment tes chansons, avec un visualiseur animé, aléatoire et répétition.',fixe:true},
@@ -9337,7 +9346,7 @@ var _ev611=esaValider;esaValider=function(){const e=$('#esa [data-esaerr]');
   return _ev611()};
 
 /* ===== v62 : version locale et mises à jour (demande d'autorisation particulière) ===== */
-var ANGEL_BUILD='62.11';
+var ANGEL_BUILD='62.12';
 var ANGEL_LOCALE=location.protocol==='file:'||/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 (function(){const D={majVerif:'demarrage',majBouton:'auto',majPos:'basgauche',majSon:true,majPause:false,majGhUser:'mick23879',majGhDepot:'angel-os',majUrl:''};Object.keys(D).forEach(k=>{if(prefs[k]===undefined)prefs[k]=D[k]});if(!prefs.migGh62){prefs.migGh62=true;if(!prefs.majGhUser)prefs.majGhUser='mick23879';store.s('prefs',prefs)}})();
 function verNum(v){return String(v||'0').split('.').map(x=>parseInt(x,10)||0)}
@@ -9584,6 +9593,184 @@ Object.assign(I,{
 
 /* ===== v62.11 : Edge Next ouvre de vrais sites (onglet de secours) ===== */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-egopen]');if(b){e.preventDefault();e.stopPropagation();try{window.open(b.dataset.egopen,'_blank','noopener,noreferrer')}catch(err){}}});
+
+/* ===== v62.12 : Cerveau IA d'Élyane (hors ligne, transformers.js) ===== */
+(function(){
+  // --- Le "cerveau" : un petit modèle qui tourne dans le navigateur (transformers.js) ---
+  window.ElyaneIA = {
+    pret:false, charge:false, gen:null, _TS:null, hist:[], pct:0, erreur:null,
+    modele:'onnx-community/Qwen2.5-0.5B-Instruct',
+    SYS:"Tu es Élyane, l'assistante personnelle d'Angel OS : chaleureuse, bienveillante et serviable. Tu t'adresses à Michel, tu le tutoies et tu l'appelles Michel. Tu réponds TOUJOURS en français, et JAMAIS dans une autre langue. Tes réponses sont COURTES et PRECISES : 1 à 3 phrases maximum, tu vas droit au but, sans bavardage. Tu restes toujours dans un cadre familial et respectueux : jamais de ton amoureux, séducteur ou ambigu.",
+    async activer(onp){
+      if(this.pret) return true;
+      if(this.charge) return false;
+      this.charge=true; this.erreur=null; this.pct=0;
+      try{
+        const T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+        this._TS = T.TextStreamer;
+        const dev = (typeof navigator!=='undefined' && navigator.gpu) ? 'webgpu' : 'wasm';
+        this.gen = await T.pipeline('text-generation', this.modele, {
+          dtype:'q4', device:dev,
+          progress_callback:(p)=>{
+            try{
+              if(p && p.status==='progress'){
+                let v = (p.progress!=null) ? p.progress : (p.total ? (p.loaded/p.total*100) : this.pct);
+                if(v>this.pct) this.pct=Math.round(v);
+                if(onp) onp(this.pct,'dl');
+              } else if(onp){ onp(this.pct, (p&&p.status)||''); }
+            }catch(e){}
+          }
+        });
+        this.pret=true; this.charge=false; this.pct=100;
+        if(onp) onp(100,'pret');
+        return true;
+      }catch(e){
+        this.charge=false; this.erreur=e;
+        if(onp) onp(0,'err');
+        throw e;
+      }
+    },
+    async repondre(q, ontok){
+      if(!this.pret) throw new Error('cerveau non prêt');
+      this.hist.push({role:'user', content:q});
+      if(this.hist.length>8) this.hist = this.hist.slice(-8);
+      const messages = [{role:'system', content:this.SYS}].concat(this.hist);
+      const streamer = new this._TS(this.gen.tokenizer, {
+        skip_prompt:true, skip_special_tokens:true,
+        callback_function:(t)=>{ if(ontok) ontok(t); }
+      });
+      const out = await this.gen(messages, {
+        max_new_tokens:140, temperature:0.7, do_sample:true, repetition_penalty:1.1, streamer:streamer
+      });
+      let txt='';
+      try{ txt = out[0].generated_text.at(-1).content; }
+      catch(e){ try{ txt = String(out[0].generated_text); }catch(e2){ txt=''; } }
+      txt = (txt||'').trim();
+      this.hist.push({role:'assistant', content:txt});
+      return txt;
+    },
+    oublie(){ this.hist=[]; }
+  };
+
+  // --- Nouvelle fenêtre d'Élyane : identique à avant + barre "cerveau" + discussion réelle ---
+  function buildAIv2(body, w){
+    body.innerHTML = '<div class="chat"><div class="iabar"></div><div class="msgs"></div><div class="sug"></div><form class="cin"><input id="ci" placeholder="Écris-moi, ou tape /aide" aria-label="Message" autocomplete="off"><button class="btn pri" style="border-radius:19px">Envoyer</button></form></div>';
+    const box = body.querySelector('.msgs'), inp = body.querySelector('#ci');
+    const say = (t,c)=>{ const d=document.createElement('div'); d.className='m '+c; d.textContent=t; box.appendChild(d); box.scrollTop=box.scrollHeight; if(c==='b'){ try{ speakE(t); }catch(e){} } };
+
+    // Réponses toutes faites (sans le cerveau) : rapides, utiles. SANS relancer eAgir (fait dans ask).
+    function replyCanned(q){
+      const n = norm(q);
+      if(/^(retiens|souviens|rappelle)/.test(n)){
+        const f = q.replace(/^\s*(retiens-toi|retiens|souviens-toi|rappelle-toi)\s*(que\s*)?/i,'').trim();
+        if(f){ mem.push(f); if(mem.length>40) mem.shift(); store.s('elyane-mem',mem); return "C'est noté : "+f; }
+        return 'Dis-moi quoi retenir, par exemple « retiens que mon ISO s\'appelle Angel ».';
+      }
+      if(/oublie tout|efface.*(souvenir|memoire)/.test(n)){ mem=[]; store.s('elyane-mem',mem); try{ElyaneIA.oublie();}catch(e){} return "J'ai tout effacé."; }
+      if(/souvien|tu retiens|retiens.tu|memoire|tu sais/.test(n)) return mem.length? 'Je retiens : '+mem.join(' · ') : 'Je ne retiens rien pour l\'instant. Dis « retiens que… ».';
+      if(/bonne nuit/.test(n)) return 'Bonne nuit, '+MOI()+' ! Repose-toi bien, je garde tout en ordre ici.';
+      if(/bonjour|salut|coucou|bonsoir/.test(n)) return greetE();
+      if(/qui es.tu|tu es qui|ton nom/.test(n)) return 'Je suis '+EN()+', '+TU('ton','votre')+' assistante dans Angel OS. J\'ouvre les applications, je règle le système, je vide la corbeille, je lance des minuteurs… '+TU('Demande','Demandez')+'-moi, je le fais tout de suite.';
+      if(/que (sais|peux).tu faire|tu (sais|peux) faire quoi|aide.moi$|^aide$/.test(n)) return 'Je le fais tout de suite, sans redemander : « ouvre l\'explorateur et la calculatrice », « ferme tout », « mode sombre », « volume 40 », « luminosité 70 », « mode autonomie », « coupe le wifi », « vide la corbeille », « minuteur 5 minutes », « note acheter du pain », « cherche la météo », « verrouille ». Tape /aide pour les commandes.';
+      if(/heure/.test(n)) return 'Il est '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'.';
+      if(/date|quel jour/.test(n)) return 'Nous sommes le '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'.';
+      if(/meteo|temps qu/.test(n)) return 'À Douala : 24 °C, ciel dégagé (donnée d\'exemple).';
+      if(/merci/.test(n)) return 'Avec plaisir, '+MOI()+'.';
+      if(/ca va|comment vas/.test(n)) return 'Je vais bien, merci ! Et toi, ta journée ?';
+      if(/cherche|recherche|trouve/.test(n)){ const t=q.replace(/^.*?(cherche|recherche|trouve)\w*\s*/i,''); openSearch(t||q); return 'Je lance la recherche dans Edge Next.'; }
+      if(/iso|archiso|linux/.test(n)) return 'Pour l\'ISO : profil archiso, Hyprland et Quickshell. Tape « opencode » dans le Terminal pour voir la démo.';
+      if(/elitebook|folio|pc|ordinateur/.test(n)) return TU('Ton','Votre')+' EliteBook Folio 9480m est un Core i5 de 2014. Il fera tourner une version légère d\'Angel OS sans problème.';
+      // pas compris, et pas de cerveau : on propose le cerveau
+      return 'Je n\'ai pas compris. Tu peux me demander une action (« ouvre le Store », « mode sombre »), ou activer mon cerveau IA en haut pour qu\'on discute pour de vrai.';
+    }
+
+    function pique(t){
+      const L = PIQUES[prefs.elyHumour] || [];
+      if(!L.length || t.length>110 || Math.random()>0.45) return t;
+      return t + L[Math.floor(Math.random()*L.length)];
+    }
+
+    function cmd(t){
+      const parts = t.trim().split(/\s+/); const m = parts[0]; const arg = parts.slice(1).join(' ').trim();
+      switch((m||'').toLowerCase()){
+        case '/aide': return "Demande-moi simplement : « ouvre … », « ferme … », « mode sombre », « volume 50 », « vide la corbeille », « minuteur 10 min », « note … », « cherche … ». Commandes : /cerveau · /retiens <chose> · /souvenirs · /oublie [numéro] · /voix · /vide · /quitter";
+        case '/cerveau': iaToggle(); return null;
+        case '/retiens':
+          if(!arg) return 'Exemple : /retiens mon ISO doit rester légère';
+          mem.push(arg); if(mem.length>40) mem.shift(); store.s('elyane-mem',mem);
+          return "C'est noté : "+arg;
+        case '/souvenirs':
+          return mem.length? mem.map((x,i)=>(i+1)+'. '+x).join('\n') : "Je ne retiens rien pour l'instant.";
+        case '/oublie':{
+          const i = parseInt(arg,10);
+          if(arg && i>=1 && i<=mem.length){ const e=mem.splice(i-1,1)[0]; store.s('elyane-mem',mem); return "J'ai oublié : "+e; }
+          if(arg) return 'Numéro invalide. Tape /souvenirs.';
+          mem=[]; store.s('elyane-mem',mem); return "J'ai tout oublié.";
+        }
+        case '/voix': setPref('voice', !prefs.voice); return 'Voix '+(prefs.voice?'activée':'coupée')+'.';
+        case '/vide': box.innerHTML=''; return 'Conversation effacée. Je garde mes souvenirs.';
+        case '/quitter': setTimeout(()=>closeWin('ai'),200); return 'À tout à l\'heure, '+MOI()+'.';
+        default: return 'Commande inconnue. Tape /aide.';
+      }
+    }
+
+    // Réponse par le cerveau IA (streaming dans une bulle)
+    function askBrain(q){
+      const d = document.createElement('div'); d.className='m b pense'; d.textContent='…';
+      box.appendChild(d); box.scrollTop=box.scrollHeight;
+      try{ etat('reflechi',0); }catch(e){}
+      let acc='';
+      ElyaneIA.repondre(q, (tok)=>{ acc+=tok; d.classList.remove('pense'); d.textContent=acc; box.scrollTop=box.scrollHeight; })
+        .then((txt)=>{ const f=(txt||acc||'').trim()||'…'; d.classList.remove('pense'); d.textContent=f; try{speakE(f);}catch(e){} try{etat(emoPour(q,f),Math.min(8000,2200+f.length*40));}catch(e){} })
+        .catch((e)=>{ d.classList.remove('pense'); d.textContent='Je n\'arrive pas à réfléchir là. Mon cerveau a besoin d\'Internet la première fois (c\'est mieux dans la version locale).'; try{etat('triste',3000);}catch(e2){} });
+    }
+
+    function ask(t){
+      if(!t || !t.trim()) return;
+      say(t,'u'); try{ etat('reflechi',0); }catch(e){}
+      // commandes /…
+      if(t.trim().charAt(0)==='/'){ const rep=cmd(t); if(rep){ setTimeout(()=>{ say(rep,'b'); try{etat(emoPour(t,rep),Math.min(8000,2200+(''+rep).length*40));}catch(e){} },160); } return; }
+      // actions système d'abord (instantané)
+      let act=null; try{ act=eAgir(t); }catch(err){ console.warn(err); }
+      if(act){ setTimeout(()=>{ const r=pique(act); say(r,'b'); try{etat(emoPour(t,r),Math.min(8000,2200+r.length*40));}catch(e){} },260); return; }
+      // discussion réelle si le cerveau est prêt
+      if(window.ElyaneIA && ElyaneIA.pret){ askBrain(t); return; }
+      // sinon, réponses toutes faites
+      setTimeout(()=>{ const rep=pique(replyCanned(t)); say(rep,'b'); try{etat(emoPour(t,rep),Math.min(8000,2200+rep.length*40));}catch(e){} },420);
+    }
+
+    // Barre du cerveau (en haut du chat)
+    function iaRender(){
+      const bar = body.querySelector('.iabar'); if(!bar) return;
+      if(ElyaneIA.pret){
+        bar.innerHTML = '<span class="cia on">🧠 Cerveau actif</span><small style="color:var(--mute)">Élyane discute pour de vrai, hors ligne.</small>';
+      } else if(ElyaneIA.charge){
+        bar.innerHTML = '<span class="cia">🧠 Préparation…</span><div class="iaprog"><i style="width:'+Math.max(3,ElyaneIA.pct||0)+'%"></i></div><small style="color:var(--mute)">'+(ElyaneIA.pct||0)+'%</small>';
+      } else {
+        bar.innerHTML = '<button class="cia" data-iago type="button">🧠 Activer mon cerveau (IA)</button><small style="color:var(--mute)">Pour discuter pour de vrai. Se télécharge une fois, puis hors ligne.</small>';
+        const b = bar.querySelector('[data-iago]'); if(b) b.addEventListener('click', iaToggle);
+      }
+    }
+    function iaToggle(){
+      if(ElyaneIA.pret || ElyaneIA.charge){ iaRender(); return; }
+      say('Je prépare mon cerveau, '+MOI()+'… (le téléchargement ne se fait qu\'une seule fois)','b');
+      iaRender();
+      ElyaneIA.activer((pct,phase)=>{ iaRender(); if(phase==='pret'){ say('Ça y est, mon cerveau est prêt ! Pose-moi une vraie question. 😊','b'); iaRender(); } })
+        .catch((e)=>{ iaRender(); say('Je n\'ai pas pu charger mon cerveau. Essaie dans la version locale (lanceur) avec Internet.','b'); });
+    }
+
+    w.ask = ask;
+    try{ etat('heureux',2600); }catch(e){}
+    body.querySelector('.cin').addEventListener('submit', (e)=>{ e.preventDefault(); ask(inp.value); inp.value=''; });
+    ['Ouvre l\'explorateur et la calculatrice','Mode sombre','Minuteur 5 minutes','Vide la corbeille','Que sais-tu faire ?'].forEach((t)=>{ const b=document.createElement('button'); b.textContent=t; b.type='button'; b.addEventListener('click',()=>ask(t)); body.querySelector('.sug').appendChild(b); });
+    iaRender();
+    say(greetE(),'b');
+  }
+
+  // Remplace l'ancienne Élyane par la nouvelle (garde tout le reste)
+  try{ if(typeof APPS!=='undefined' && APPS.ai) APPS.ai.build = buildAIv2; }catch(e){}
+  try{ buildAI = buildAIv2; }catch(e){}
+})();
 
 kbDessine();
 applyPrefs();renderNotes();fillIcons(document);
